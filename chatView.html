@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://cdn.socket.io;">
+</head>
+<body>
+    <div class="contentWraper">
+        <div class="toolsHeader">
+            <svg id="clipPath" width="76" height="73" viewBox="0 0 76 73" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M49.8421 29.3308L41.6396 52.1514C39.9584 56.829 34.8035 59.258 30.1259 57.5767V57.5767C25.4483 55.8954 23.0193 50.7406 24.7006 46.063L34.5267 18.7253C35.7877 15.2171 39.6538 13.3953 43.162 14.6563V14.6563C46.6702 15.9173 48.4919 19.7834 47.231 23.2916L38.9608 46.3004C38.1202 48.6392 35.5427 49.8537 33.2039 49.0131V49.0131C30.8652 48.1725 29.6507 45.595 30.4913 43.2562L37.1379 24.7644" stroke="#C2CCDE" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div class="mensajeContainer">
+        </div>
+        <div class="messageManager">
+            <input type="text" placeholder="Escribe un mensaje" class="inputMensaje">
+            <button class="botonEnviar">Enviar</button>
+        </div>
+    </div>
+
+    <script src="socket.io.min.js"></script>
+    <script src="chatScript.js"></script>
+</body>
+</html>

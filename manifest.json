@@ -1,0 +1,27 @@
+{
+    "manifest_version": 3,
+  
+    "name": "AnimeParty",
+    "version": "1.0",
+    "description": "Mira anime junto a tus amigos o conoce nuevas personas con quienes ver anime!.",
+  
+    "permissions": [
+      "activeTab"
+    ],
+
+    "content_scripts": [
+      {
+        "all_frames": true,
+        "matches": ["<all_urls>"],
+        "js": ["index.js"]
+      }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": [ "socket.io.min.js","chatView.html", "styles.css" ],
+        "matches": ["<all_urls>"]
+      }
+    ]
+
+  }
+  
