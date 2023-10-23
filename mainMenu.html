@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimeParty</title>
+    <link rel="stylesheet" href="mainMenu.css">
+</head>
+<body>
+    <div class="userLogin">
+        <p class="userLoginP">ESCRIBE TU NOMBRE PARA INGRESAR</p>
+        <form id="userLoginForm">
+            <input id="userLoginInput" placeholder="Nombre" type="text" maxlength="12" required>
+            <button class="btn" id="userLoginBtn" type="submit">ENTRAR</button>    
+        </form>
+        <p class="userLoginError error"></p>
+    </div>
+    <div class="rooms hide">
+        <div class="createRoom">
+            <form id="createRoomForm">
+                <input  name="partyName" type="text" placeholder="Nombre de tu party"  id="createRoomInput" maxlength="15" required>
+                <button type="submit" class="btn">CREAR</button>
+            </form>
+            <p class="createRoomError error"></p>
+            <img class="profileIcon" src="resources/profileIcons/male.png">   
+        </div>
+        <div class="roomsContainer">
+            <template id="template-room">
+                <div class="room">
+                        <img class="profileIcon">   
+                        <p class="username"></p>
+                        <p class="roomName"></p>
+                        <img class="usersConnectedIcon" src="resources/tools/group.svg">
+                        <p class="usersConnectedNumber"></p>
+                        <img class="lock" src="resources/tools/lock.svg">
+                        <button class="btn roomEnterBtn">ENTRAR</button>    
+                    </div>
+            </template>
+        </div>
+    </div>
+    <script src="login.js" type="module"></script>
+    <script src="rooms.js" type="module"></script>
+    <!-- <script src="socket.io.esm.min.js" type="module"></script> -->
+</body>
+</html>

@@ -1,0 +1,196 @@
+/* ********** Custom Properties ********** */
+@font-face {
+    font-family: 'Manga Temple';
+    src: url('./fonts/manga_temple/mangat-webfont.woff2') format('woff2');
+}
+
+:root{
+    --primaryFont: 'Manga Temple';
+    --secondaryFont: 'Raleway';
+}
+/* ********** Reset ********** */
+html {
+    box-sizing: border-box;
+    font-family: var(--font);
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+  
+  *,
+  *::after,
+  *::before {
+    box-sizing: inherit;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background-color: black;
+    color: whitesmoke;
+    font-family: var(--primaryFont);    
+  }
+
+
+  .btn {
+    border: none;
+    cursor: pointer;  
+    padding: 1rem;
+    transform: skewX(-20deg);
+    display: inline-block;
+    width: 100px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    font-family: var(--primaryFont);
+    background-color: #FFC107;
+  }
+.userLogin {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 320px;
+    height: 200px;    
+}
+
+.error {
+  font-family: var(--secondaryFont);
+  color: red;
+}
+
+.userLogin > form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.userLogin > form > input{
+    margin-bottom: 1rem;
+}
+
+.userLoginP {
+    font-size: 16px;
+    text-align: center;
+    font-weight: 400;
+    width: 138px;
+    height: 59px;
+}
+
+.rooms {
+  width: 350px;
+  min-height: 200px;
+  height: auto;
+}
+.createRoom {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #332D2D;
+}
+
+.createRoom > .profileIcon {
+  margin-bottom: 5px;
+}
+
+.createRoom > form {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.createRoom > form > button {
+  background: #CC0001;
+  color: aliceblue;
+  height: 30px;
+  line-height: 0;
+}
+
+.createRoom > form > input {
+  height: 30px;
+  transform: skewX(-20deg);
+  width: 130px;
+}
+
+.profileIcon {
+  background: white;
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileIcon {
+  grid-area: profileIcon;
+  justify-self: center;
+  align-self: center;
+}
+
+.username {
+  grid-area: username;
+  color: #999;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--secondaryFont);
+  align-self: end;
+  margin: 0;
+}
+
+.roomName {
+  grid-area: roomName;
+  margin: 0;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.usersConnectedIcon {
+  grid-area: usersConnectedIcon;
+  align-self: center;
+}
+
+.usersConnectedNumber{
+  color: #797979;
+  grid-area: usersConnectedNumber;
+  font-weight: 400;
+  font-size: 16px;
+  align-self: end;
+  justify-self: start;
+  margin: 4px
+}
+
+.lock {
+  grid-area: lock;
+}
+
+.roomEnterBtn {
+  grid-area: roomEnterBtn;
+  height: 40px;
+  transform: none;
+}
+
+.room {
+  padding-right: 10px;
+  display: grid;
+  width: 100%;
+  height: 100px;
+  border-bottom: 2px solid #332D2D;
+  grid-template-columns: 2fr 4fr repeat(3, 0.5fr);
+  grid-template-rows: 1fr 2fr;
+  grid-template-areas: 
+  "profileIcon username usersConnectedIcon usersConnectedNumber lock"
+  "profileIcon roomName  roomEnterBtn      roomEnterBtn         roomEnterBtn";
+}
+
+
+
+
+.hide{
+  display: none;
+  pointer-events: none;
+}
+

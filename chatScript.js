@@ -1,22 +1,10 @@
-const socket = io('http://localhost:9000');
-socket.on('connect', ()=>{
-  console.log("Connected!")
-  socket.emit('clientConnect');
-})
-
-socket.on('welcome', data =>{
-  console.log(data);
-})
-
-
-
 const d = document;
 const $mensajeContainer = d.querySelector(".mensajeContainer");
 const $input = d.querySelector(".inputMensaje");
 const $clipPath = d.getElementById("clipPath");
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Mensaje recibido en el script interno:", message);
+  console.log("Mensaje recibido en chatScript.js:", message);
 });
 
 function agregarMensaje() {

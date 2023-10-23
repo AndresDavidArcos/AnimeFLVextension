@@ -8,7 +8,10 @@
     "permissions": [
       "activeTab"
     ],
-
+    "action": {
+      "default_title": "AnimeParty", 
+      "default_popup": "mainMenu.html"  
+    },
     "content_scripts": [
       {
         "all_frames": true,
@@ -18,7 +21,7 @@
     ],
     "web_accessible_resources": [
       {
-        "resources": [ "socket.io.min.js","chatView.html", "styles.css" ],
+        "resources": ["chatView.html", "styles.css" ],
         "matches": ["<all_urls>"]
       }
     ]
