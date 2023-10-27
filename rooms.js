@@ -27,7 +27,7 @@ export default function initRoomsWithUser(user, rooms, socket){
     ];
 
     let url = "",
-    videoFounded = false;
+    videoProvider = "";
 
     roomContentTest.forEach(el => {
         const $clone = d.importNode($roomTemplate, true);
@@ -60,35 +60,44 @@ export default function initRoomsWithUser(user, rooms, socket){
         } catch (error) {
             console.log("No se encontro una url");
         }
-        const regex = /^https:\/\/www3\.animeflv\.net\/ver\/.*$/;
 
         try {
             const tabs = await chrome.tabs.query({active:true, currentWindow: true})
-            videoFounded = await chrome.tabs.sendMessage(tabs[0].id,{type:"videoRequest"});
+            videoProvider = await chrome.tabs.sendMessage(tabs[0].id,{type:"videoRequest"});
+            console.log("videoFounded: ", videoProvider)
         } catch (error) {
-            console.log(error)
+            console.log("No se encontro un video");
         }
+
+        const regex = /^https:\/\/www3\.animeflv\.net\/ver\/.*$/;
 
         if (regex.test(url)) {
 
-            if(videoFounded){
+            if(videoProvider){
                 console.log("video encontrado!!!")
+                const $partyNameInput = $createRoomForm.elements['partyName'];
+                const partyName = $partyNameInput.value;
+                // const serverRes = await socket.emitWithAck("createRoomRequest", {partyName, user});
+                // if(serverRes.status === "success"){
+                    
+                // }else{
+                //     $createRoomError.textContent = serverRes.msg;
+                // }                
+                const partyData = {
+                    roomName: partyName,
+                    iconSrc: "female",
+                    username: user,
+                    url: url,
+                    videoProvider: videoProvider
+                }
+                console.log("partyData: ", partyData)
+
             }else{
                 showError("No se encontro un video para iniciar la party, por favor, reproduce un anime.")
             }
         }else{
                 showError("Para iniciar una party debes seleccionar un anime de la pagina AnimeFLV.")
             }
-
-
-        const $partyNameInput = $createRoomForm.elements['partyName'];
-        const partyName = $partyNameInput.value;
-        const serverRes = await socket.emitWithAck("createRoomRequest", {partyName, user});
-        if(serverRes.status === "success"){
-            
-        }else{
-            $createRoomError.textContent = serverRes.msg;
-        }
     })
 
 }

@@ -1,5 +1,4 @@
 const d = document;
-console.log(window)
 let animeUrl = "",
 videoFounded = false;
 
@@ -28,10 +27,7 @@ if (window.frameElement === null && currentUrl.startsWith(verifyUrl)) {
             case "urlRequest":
                 sendResponse(animeUrl);
                 break;
-            case "videoRequest":
-                console.log("videoRequest", videoFounded)
-                sendResponse(videoFounded);
-                break;
+
             default:
                 break;
         }
@@ -41,9 +37,29 @@ if (window.frameElement === null && currentUrl.startsWith(verifyUrl)) {
 
 
 d.querySelectorAll("video").forEach((item) => {
-    console.log("video encontrado")
-    videoFounded = true;
-
+    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+        switch (msg.type) {
+            case "videoRequest":
+                const videoProviderServer = new URL(new URL(item.src).origin).hostname;
+                let videoProvider = "";
+                switch (videoProviderServer) {
+                    case "vidcache.net":
+                        videoProvider = "YourUpload";
+                        break;
+                    case "streamwish.to":
+                        videoProvider = "SW";
+                        break;                        
+                
+                    default:
+                        break;
+                }
+                sendResponse(videoProvider);
+                break;
+        
+            default:
+                break;
+        }
+    })
     item.addEventListener("play", function() {
         chrome.runtime.sendMessage({ type: "playback", state: "play" });
     });
