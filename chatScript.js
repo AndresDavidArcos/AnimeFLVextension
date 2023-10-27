@@ -3,9 +3,9 @@ const $mensajeContainer = d.querySelector(".mensajeContainer");
 const $input = d.querySelector(".inputMensaje");
 const $clipPath = d.getElementById("clipPath");
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Mensaje recibido en chatScript.js:", message);
-});
+// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+//   console.log("Mensaje recibido en chatScript.js:", message);
+// });
 
 function agregarMensaje() {
 

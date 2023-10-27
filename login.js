@@ -26,6 +26,7 @@ const joinRooms = async(username) => {
         $roomsWindow.classList.remove("hide");
         initRoomsWithUser(username, serverRes.rooms, socket);
     }else{
+        console.log("Error en joinRooms")
         $errorP.textContent = serverRes.msg;
     }
 }

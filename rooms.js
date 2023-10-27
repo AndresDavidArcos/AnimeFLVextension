@@ -1,3 +1,6 @@
+
+import { showError } from "./errorModal.js";
+
 export default function initRoomsWithUser(user, rooms, socket){
     const d = document;
     const $roomTemplate = d.getElementById("template-room").content,
@@ -22,7 +25,10 @@ export default function initRoomsWithUser(user, rooms, socket){
             roomName: 'You have no enemies',
         }
     ];
-    
+
+    let url = "",
+    videoFounded = false;
+
     roomContentTest.forEach(el => {
         const $clone = d.importNode($roomTemplate, true);
         $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${el.iconSrc}.png`);
@@ -48,6 +54,33 @@ export default function initRoomsWithUser(user, rooms, socket){
 
     $createRoomForm.addEventListener("submit", async e => {
         e.preventDefault();
+        try {
+            const tabs = await chrome.tabs.query({active:true, currentWindow: true})
+            url = await chrome.tabs.sendMessage(tabs[0].id,{type:"urlRequest"});
+        } catch (error) {
+            console.log("No se encontro una url");
+        }
+        const regex = /^https:\/\/www3\.animeflv\.net\/ver\/.*$/;
+
+        try {
+            const tabs = await chrome.tabs.query({active:true, currentWindow: true})
+            videoFounded = await chrome.tabs.sendMessage(tabs[0].id,{type:"videoRequest"});
+        } catch (error) {
+            console.log(error)
+        }
+
+        if (regex.test(url)) {
+
+            if(videoFounded){
+                console.log("video encontrado!!!")
+            }else{
+                showError("No se encontro un video para iniciar la party, por favor, reproduce un anime.")
+            }
+        }else{
+                showError("Para iniciar una party debes seleccionar un anime de la pagina AnimeFLV.")
+            }
+
+
         const $partyNameInput = $createRoomForm.elements['partyName'];
         const partyName = $partyNameInput.value;
         const serverRes = await socket.emitWithAck("createRoomRequest", {partyName, user});

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AnimeParty</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="mainMenu.css">
 </head>
 <body>
@@ -16,6 +17,25 @@
         <p class="userLoginError error"></p>
     </div>
     <div class="rooms hide">
+        <!-- Start error modal -->
+        <div class="frame hide">
+            <div class="modal">
+              <div class="warning">
+                <span class="material-symbols-outlined">
+                    sentiment_stressed
+                    </span>
+              </div>
+              <div class="heading"></div>
+              <div class="content">
+                <span>Ups!</span>
+                <p class="contentErrorMsg"></p>
+              </div>
+              <div class="footer">
+                Dismiss
+              </div>
+            </div>
+          </div>
+          <!-- End error modal -->
         <div class="createRoom">
             <form id="createRoomForm">
                 <input  name="partyName" type="text" placeholder="Nombre de tu party"  id="createRoomInput" maxlength="15" required>
@@ -38,8 +58,8 @@
             </template>
         </div>
     </div>
+    <script src="errorModal.js" type="module"></script>
     <script src="login.js" type="module"></script>
     <script src="rooms.js" type="module"></script>
-    <!-- <script src="socket.io.esm.min.js" type="module"></script> -->
 </body>
 </html>
