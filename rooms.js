@@ -86,9 +86,10 @@ export default function initRoomsWithUser(user, rooms, socket){
             if(videoProvider){
                 console.log("video encontrado!!!")
                 const $partyNameInput = $createRoomForm.elements['partyName'];
-                const partyName = $partyNameInput.value;            
+                const partyName = $partyNameInput.value; 
+                const newRoomId = generateUniqueId()           
                 const partyData = {
-                    roomId: generateUniqueId(),
+                    roomId: newRoomId,
                     roomName: partyName,
                     iconSrc: "female",
                     username: user,
@@ -96,6 +97,7 @@ export default function initRoomsWithUser(user, rooms, socket){
                     videoProvider: videoProvider
                 }
                  socket.emit("createRoomRequest", partyData);
+                
                  try {
                     const tabs = await chrome.tabs.query({active:true, currentWindow: true})
                     chrome.tabs.sendMessage(tabs[0].id,{type:"roomCreated", partyData});      
