@@ -7,31 +7,40 @@ const verifyUrl = "https://www3.animeflv.net/ver/";
 
 if (window.frameElement === null && currentUrl.startsWith(verifyUrl)) {
     animeUrl = currentUrl;
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    //chatView insert
-    const $chatIframe = d.createElement('iframe');
-    $chatIframe.src = chrome.runtime.getURL('chatView.html');
-    $chatIframe.style.width = `${viewportWidth * 0.2}px`;
-    $chatIframe.style.height = `${viewportHeight * 0.7}px`;
-    $chatIframe.style.position = 'absolute';
-    $chatIframe.style.top = '100px';
-    $chatIframe.style.right = '-100px';    
-    const $animeNews = d.querySelector(".CpCnC"); 
-    $animeNews.style.top = "700px"
-    $animeNews.insertAdjacentElement('beforebegin', $chatIframe);
-
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         console.log("mensaje recibido en index.js: ", msg)
         switch (msg.type) {
             case "urlRequest":
                 sendResponse(animeUrl);
                 break;
-
+            case "roomCreated":
+                //Insert chatView
+                const partyData = msg.partyData;
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const $chatIframe = d.createElement('iframe');
+                $chatIframe.src = chrome.runtime.getURL('chatView.html');
+                $chatIframe.allow = "clipboard-read; clipboard-write"
+                $chatIframe.style.width = `${viewportWidth * 0.2}px`;
+                $chatIframe.style.height = `${viewportHeight * 0.7}px`;
+                $chatIframe.style.position = 'absolute';
+                $chatIframe.style.top = '100px';
+                $chatIframe.style.right = '-100px'; 
+                $chatIframe.addEventListener("load", e => {
+                    chrome.runtime.sendMessage({ type: "getPartyData", partyData});
+                })
+                const $animeNews = d.querySelector(".CpCnC"); 
+                $animeNews.style.top = "700px"
+                $chatIframe.addEventListener('load', () => {
+                    $chatIframe.contentWindow.postMessage(partyData, '*');
+                  });                
+                $animeNews.insertAdjacentElement('beforebegin', $chatIframe);
             default:
                 break;
         }
     })
+
+    
 
 } 
 

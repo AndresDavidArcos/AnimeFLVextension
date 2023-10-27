@@ -1,14 +1,25 @@
 const d = document;
-const $mensajeContainer = d.querySelector(".mensajeContainer");
-const $input = d.querySelector(".inputMensaje");
-const $clipPath = d.getElementById("clipPath");
+const $mensajeContainer = d.querySelector(".mensajeContainer"),
+$input = d.querySelector(".inputMensaje"),
+$botonEnviar = d.querySelector(".botonEnviar"),
+$copyPartyLink = d.getElementById("clipPath");
+let partyData = {};
 
-// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-//   console.log("Mensaje recibido en chatScript.js:", message);
-// });
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("Mensaje recibido en chatScript.js:", message);
+  switch (message.type) {
+    case "getPartyData":
+      partyData = message.partyData;
+      break;
+  
+    default:
+      break;
+  }
+});
+
+
 
 function agregarMensaje() {
-
   const mensaje = $input.value;
   if (mensaje) {
     const $mensaje = d.createElement('p');
@@ -19,31 +30,10 @@ function agregarMensaje() {
   }
 }
 
-function generateUniqueId() {
-    const timestamp = Date.now();
-    const random = Math.random();
-    const uniqueId = Math.floor(timestamp * random);
-  
-    return uniqueId.toString();
-  }
+function partyLinkToClipboard(){
+  navigator.clipboard.writeText(`${partyData.url}?partyId=${partyData.roomId}`);
+}
 
-  const partyId = generateUniqueId();
-  
-  function partyLink() {
-    const actualLink = window.location.href;
-    const roomLink = actualLink + `?partyId=${partyId}`;
-    console.log(roomLink);
-    return roomLink;
-  }
-   
-
-
-// Manejar el evento de clic en el botón de enviar
-const $botonEnviar = d.querySelector(".botonEnviar");
 $botonEnviar.addEventListener('click', agregarMensaje);
 
-//Event delegation for all click events:
-d.addEventListener("click", e => {
-
-    if(e.target.matches("#clipPath")) console.log("jejejeje", partyLink());
-})
+$copyPartyLink.addEventListener("click", partyLinkToClipboard)

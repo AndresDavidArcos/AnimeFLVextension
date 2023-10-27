@@ -3,6 +3,9 @@ import { showError } from "./errorModal.js";
 
 export default function initRoomsWithUser(user, rooms, socket){
     const d = document;
+    const generateUniqueId = () => {
+        return crypto.randomUUID();
+    }
     const $roomTemplate = d.getElementById("template-room").content,
     $fragment = d.createDocumentFragment(),
     $roomsFragment = d.createDocumentFragment(),
@@ -11,18 +14,25 @@ export default function initRoomsWithUser(user, rooms, socket){
     $createRoomError = d.querySelector(".createRoomError"),
     roomContentTest = [
         {
+            roomId: generateUniqueId(),
             iconSrc: "female",
-            usersConnected: 5,
-            lock: true,
             username: 'Amelia',
             roomName: 'Party pa ver jujutsu',
+            url: 'https://www3.animeflv.net/ver/jujutsu-kaisen-2nd-season-14',
+            videoProvider: 'YourUpload',            
+            lock: true,
+            usersConnected: 5
         },
         {
+            roomId: generateUniqueId(),
             iconSrc: "male",
-            usersConnected: 10,
-            lock: false,
             username: 'Gomas',
-            roomName: 'You have no enemies',
+            roomName: 'Goblin slayer',
+            url: 'https://www3.animeflv.net/ver/goblin-slayer-ii-4',
+            videoProvider: 'SW',
+            lock: false,            
+            usersConnected: 10
+
         }
     ];
 
@@ -76,24 +86,25 @@ export default function initRoomsWithUser(user, rooms, socket){
             if(videoProvider){
                 console.log("video encontrado!!!")
                 const $partyNameInput = $createRoomForm.elements['partyName'];
-                const partyName = $partyNameInput.value;
-                // const serverRes = await socket.emitWithAck("createRoomRequest", {partyName, user});
-                // if(serverRes.status === "success"){
-                    
-                // }else{
-                //     $createRoomError.textContent = serverRes.msg;
-                // }                
+                const partyName = $partyNameInput.value;            
                 const partyData = {
+                    roomId: generateUniqueId(),
                     roomName: partyName,
                     iconSrc: "female",
                     username: user,
                     url: url,
                     videoProvider: videoProvider
                 }
-                console.log("partyData: ", partyData)
+                 socket.emit("createRoomRequest", partyData);
+                 try {
+                    const tabs = await chrome.tabs.query({active:true, currentWindow: true})
+                    chrome.tabs.sendMessage(tabs[0].id,{type:"roomCreated", partyData});      
+                 } catch (error) {
+                    console.log("error ocurrido al crear la room: ",error)
+                 }           
 
             }else{
-                showError("No se encontro un video para iniciar la party, por favor, reproduce un anime.")
+                showError("No se encontro un video para iniciar la party, por favor, reproduce un video con YourUpload o SW.")
             }
         }else{
                 showError("Para iniciar una party debes seleccionar un anime de la pagina AnimeFLV.")
