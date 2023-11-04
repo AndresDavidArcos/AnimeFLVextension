@@ -1,7 +1,8 @@
 
 import { showError } from "./errorModal.js";
+import ServerEndpoints from "./ServerEndpoints.js";
 
-export default function initRoomsWithUser(user, rooms, socket){
+export default function initRoomsWithUser(user, rooms){
     const d = document;
     const generateUniqueId = () => {
         return crypto.randomUUID();
@@ -74,7 +75,6 @@ export default function initRoomsWithUser(user, rooms, socket){
         try {
             const tabs = await chrome.tabs.query({active:true, currentWindow: true})
             videoProvider = await chrome.tabs.sendMessage(tabs[0].id,{type:"videoRequest"});
-            console.log("videoFounded: ", videoProvider)
         } catch (error) {
             console.log("No se encontro un video");
         }
@@ -84,7 +84,7 @@ export default function initRoomsWithUser(user, rooms, socket){
         if (regex.test(url)) {
 
             if(videoProvider){
-                console.log("video encontrado!!!")
+                console.log("video encontrado!!!", videoProvider)
                 const $partyNameInput = $createRoomForm.elements['partyName'];
                 const partyName = $partyNameInput.value; 
                 const newRoomId = generateUniqueId()           
@@ -96,15 +96,25 @@ export default function initRoomsWithUser(user, rooms, socket){
                     url: url,
                     videoProvider: videoProvider
                 }
-                 socket.emit("createRoomRequest", partyData);
-                
-                 try {
-                    const tabs = await chrome.tabs.query({active:true, currentWindow: true})
-                    chrome.tabs.sendMessage(tabs[0].id,{type:"roomCreated", partyData});      
-                 } catch (error) {
-                    console.log("error ocurrido al crear la room: ",error)
-                 }           
 
+                try {
+                    const response = await fetch(ServerEndpoints.createRoom, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(partyData)
+                    });
+            
+                    if (response.ok) {
+                        const tabs = await chrome.tabs.query({active:true, currentWindow: true})
+                        chrome.tabs.sendMessage(tabs[0].id,{type:"roomCreated", partyData});      
+                    } else {
+                        showError("Hubo un error al crear la room: "+response.message);
+                    }
+                } catch (error) {
+                    console.error('Error creating room:', error);
+                }                   
             }else{
                 showError("No se encontro un video para iniciar la party, por favor, reproduce un video con YourUpload o SW.")
             }

@@ -21,7 +21,7 @@
     ],
     "web_accessible_resources": [
       {
-        "resources": ["chatView.html", "styles.css", "index.js" ],
+        "resources": ["chatView.html", "styles.css", "index.js"],
         "matches": ["<all_urls>"]
       }
     ]

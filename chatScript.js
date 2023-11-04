@@ -1,10 +1,19 @@
+(async () => {
+  const src = chrome.runtime.getURL("socket.io.esm.min.js");
+  const socketModule = await import(src);
+  const {io} = socketModule.default;
+  const socket = io('http://localhost:9000');
+  socket.on('connect', ()=>{
+    console.log(`El cliente con la id ${socket.id} se ha conectado!`)
+})
+})();
+
 const d = document;
 const $mensajeContainer = d.querySelector(".mensajeContainer"),
 $input = d.querySelector(".inputMensaje"),
 $botonEnviar = d.querySelector(".botonEnviar"),
 $copyPartyLink = d.getElementById("clipPath");
-let partyData = {};
-
+let partyData = {}
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Mensaje recibido en chatScript.js:", message);
   switch (message.type) {
