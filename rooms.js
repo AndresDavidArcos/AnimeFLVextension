@@ -16,7 +16,7 @@ export default function initRoomsWithUser(user, rooms){
     roomContentTest = [
         {
             roomId: generateUniqueId(),
-            iconSrc: "female",
+            avatar: "female",
             username: 'Amelia',
             roomName: 'Party pa ver jujutsu',
             url: 'https://www3.animeflv.net/ver/jujutsu-kaisen-2nd-season-14',
@@ -26,7 +26,7 @@ export default function initRoomsWithUser(user, rooms){
         },
         {
             roomId: generateUniqueId(),
-            iconSrc: "male",
+            avatar: "male",
             username: 'Gomas',
             roomName: 'Goblin slayer',
             url: 'https://www3.animeflv.net/ver/goblin-slayer-ii-4',
@@ -42,7 +42,7 @@ export default function initRoomsWithUser(user, rooms){
 
     roomContentTest.forEach(el => {
         const $clone = d.importNode($roomTemplate, true);
-        $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${el.iconSrc}.png`);
+        $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${el.avatar}.png`);
         $clone.querySelector(".usersConnectedNumber").textContent = el.usersConnected;
         $clone.querySelector(".lock").setAttribute("src", el.lock ? "resources/tools/lock.svg" : "resources/tools/unlock.svg");
         $clone.querySelector(".username").textContent = el.username;
@@ -54,7 +54,7 @@ export default function initRoomsWithUser(user, rooms){
     for(const roomId in rooms){
         const room = rooms[roomId];
         const $clone = d.importNode($roomTemplate, true);
-        $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${room.iconSrc}.png`);
+        $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${room.avatar}.png`);
         $clone.querySelector(".usersConnectedNumber").textContent = room.usersConnected;
         $clone.querySelector(".lock").setAttribute("src", room.lock ? "resources/tools/lock.svg" : "resources/tools/unlock.svg");
         $clone.querySelector(".username").textContent = room.username;
@@ -91,7 +91,7 @@ export default function initRoomsWithUser(user, rooms){
                 const partyData = {
                     roomId: newRoomId,
                     roomName: partyName,
-                    iconSrc: "female",
+                    avatar: "female",
                     username: user,
                     url: url,
                     videoProvider: videoProvider

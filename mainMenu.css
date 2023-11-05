@@ -167,7 +167,7 @@ html {
     font-weight: bold;
     text-align: center;
     text-decoration: none;
-    color: black;
+    color: rgba(25, 25, 25, 1);
     font-family: var(--primaryFont);
     background-color: #FFC107;
   }

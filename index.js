@@ -39,13 +39,13 @@ if (window.frameElement === null && currentUrl.startsWith(verifyUrl)) {
                 const $chatIframe = d.createElement('iframe');
                 $chatIframe.src = chrome.runtime.getURL('chatView.html');
                 $chatIframe.allow = "clipboard-read; clipboard-write"
-                $chatIframe.style.width = `${viewportWidth * 0.2}px`;
+                $chatIframe.style.width = `${viewportWidth * 0.23}px`;
                 $chatIframe.style.height = `${viewportHeight * 0.7}px`;
                 $chatIframe.style.position = 'absolute';
                 $chatIframe.style.top = '100px';
                 $chatIframe.style.right = '-100px'; 
                 $chatIframe.addEventListener("load", e => {
-                    chrome.runtime.sendMessage({ type: "getPartyData", partyData});
+                    chrome.runtime.sendMessage({ type: "hostRoomJoined", roomId: partyData.roomId});
                 })
                 const $animeNews = d.querySelector(".CpCnC"); 
                 $animeNews.style.top = "700px"       

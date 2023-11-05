@@ -1,0 +1,196 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+/* ********** Custom Properties ********** */
+@font-face {
+    font-family: 'Manga Temple';
+    src: url('./fonts/manga_temple/mangat-webfont.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('./fonts/Poppins/Poppins-Regular.woff2') format('woff2');
+}:root{
+    --primaryFont: 'Manga Temple';
+    --secondaryFont: 'Poppins';
+}
+/* ********** Reset ********** */
+html {
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+  
+  *,
+  *::after,
+  *::before {
+    box-sizing: inherit;
+  }
+
+  p{
+    margin: 0;
+  }
+
+.contentWraper{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    color: whitesmoke;
+    overflow-x: hidden;
+    background-color: rgba(25, 25, 25, 1);
+    font-family: var(--primaryFont);       
+}
+
+.toolsHeader{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    height: 10%;
+    width: 100%;
+    background-color: rgb(30,30,30);
+}
+
+.toolsHeader #clipPath {
+    cursor: pointer;
+}
+
+.messages{
+    height: 70%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.messages::-webkit-scrollbar {
+  width: 7px;
+}
+
+.messages::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  background-color: transparent;
+}
+
+.messages::-webkit-scrollbar-thumb {
+background-color: #FFC107;
+}
+
+.profileIcon {
+    background: white;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    object-fit: cover;  
+    grid-area: profileIcon;
+    justify-self: center;
+    align-self: start;
+  }
+  
+  .username {
+    grid-area: username;
+    font-size: 16px;
+    color: #FFF;
+    font-weight: 700;
+    font-family: Raleway;
+    align-self: end;
+    margin-bottom: 3.5px;
+    margin-left: 12px;
+  }
+
+  .messageDate {
+    grid-area: messageDate;
+    align-self: end;
+    justify-self: start;
+    color: #797979;
+    font-size: 12px;
+    margin-right: 12px;
+  }  
+.messageContent {
+    grid-area: messageContent;
+    font-family: var(--secondaryFont);
+    width: 100%;
+    height: auto;
+    font-size: 14px;
+    letter-spacing: .25px;
+    color: #dcdcdc;
+    font-weight: 400;
+    align-self: start;
+    margin-left: 8px;
+    padding-right: 30px;
+    overflow-wrap: break-word;
+}
+.message{
+    display: grid;
+    height: auto;
+    width: 100%;
+    grid-template-columns: 60px 1fr 1fr;
+    grid-template-rows: 27px auto;
+    grid-template-areas: 
+    "profileIcon    username      messageDate"
+    "profileIcon messageContent    messageContent     ";
+    margin-bottom: 25px;
+}
+
+
+.messageManager{
+    height: 20%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(30,30,30);
+}
+
+.messageSender {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: end;
+  width: 100%;
+  height: 60%;
+}
+
+.btn {
+  border: none;
+  cursor: pointer;  
+  padding: 1rem;
+  width: 100px;
+  height: 50px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  color: black;
+  font-family: var(--primaryFont);
+  background-color: #FFC107;
+  margin-left: 0;
+}
+
+.sendMessageInput {
+  border: 2px solid #FFC107;
+  background-color: hsl(0, 0%, 35%);
+  color: #dcdcdc;
+  min-height: 50px;
+  max-height: 520px;
+  resize: none;
+}
+
+.sendMessageInput:focus {
+  outline: none !important;
+}
+
+.sendMessageInput::-webkit-scrollbar {
+  width: 0;
+}
+
+
+.sendMessageInput::placeholder{
+  color: #c8c8c8;
+}
+
+.red{
+    background-color: red;
+}

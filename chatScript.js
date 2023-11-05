@@ -1,48 +1,88 @@
-(async () => {
+(async (d) => {
+  
   const src = chrome.runtime.getURL("socket.io.esm.min.js");
   const socketModule = await import(src);
   const {io} = socketModule.default;
   const socket = io('http://localhost:9000');
   socket.on('connect', ()=>{
     console.log(`El cliente con la id ${socket.id} se ha conectado!`)
-})
-})();
+  })
 
-const d = document;
-const $mensajeContainer = d.querySelector(".mensajeContainer"),
-$input = d.querySelector(".inputMensaje"),
-$botonEnviar = d.querySelector(".botonEnviar"),
-$copyPartyLink = d.getElementById("clipPath");
-let partyData = {}
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Mensaje recibido en chatScript.js:", message);
-  switch (message.type) {
-    case "getPartyData":
-      partyData = message.partyData;
-      break;
+  socket.on('roomMessage',messageObj=>{
+    console.log(messageObj);
+    buildMessageHtml(messageObj);
+  })
+
+  const $input = d.querySelector(".sendMessageInput"),
+  $sendBtn = d.querySelector(".sendMessageBtn"),
+  $copyPartyLink = d.getElementById("clipPath"),
+  $messageTemplate = d.getElementById("templateMessage").content,
+  $fragment = d.createDocumentFragment(),
+  $messagesContainer = d.querySelector(".messages");
+  let roomInfo = {},
+  isHost = false;
+
+  chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+    console.log("Mensaje recibido en chatScript.js:", message);
+    switch (message.type) {
+      case "hostRoomJoined":
+          isHost = true;
+          roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
+        break;
+      case "guestRoomJoined":
+        isHost = false;
+        roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
+        roomInfo.history.forEach(message=>{
+          buildMessageHtml(message)
+        })
+    
+      default:
+        break;
+    }
+  });
+
+  function formatDate(date) {
+    const options = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    };
+    const formattedDate = new Intl.DateTimeFormat(undefined, options).format(date);
+    return formattedDate;
+  }
+
+  function buildMessageHtml(message){
+    const $clone = d.importNode($messageTemplate, true);
+    $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${message.avatar}.png`);
+    $clone.querySelector(".username").textContent = message.userName;
+    $clone.querySelector(".messageContent").textContent = message.content;
+    $clone.querySelector(".messageDate").textContent = formatDate(message.date);
+    $messagesContainer.appendChild($clone)
+  }
   
-    default:
-      break;
+  function partyLinkToClipboard(){
+    navigator.clipboard.writeText(`${roomInfo.url}?roomId=${roomInfo.roomId}`);
   }
-});
-
-
-
-function agregarMensaje() {
-  const mensaje = $input.value;
-  if (mensaje) {
-    const $mensaje = d.createElement('p');
-    $mensaje.textContent = mensaje;
-    $mensaje.classList.add('mensaje');
-    $mensajeContainer.appendChild($mensaje);
-    $input.value = '';
+  
+  function sendMessage(){
+    const content = $input.value;
+    if(content){
+      socket.emit('newMessageToRoom',{
+        content,
+        date: Date.now(),
+        avatar: 'male',
+        userName: 'testUser',
+    })
+    $input.value = ""; 
+    }
   }
-}
 
-function partyLinkToClipboard(){
-  navigator.clipboard.writeText(`${partyData.url}?partyId=${partyData.roomId}`);
-}
+  
 
-$botonEnviar.addEventListener('click', agregarMensaje);
+  $sendBtn.addEventListener('click', sendMessage);
+  
+  $copyPartyLink.addEventListener("click", partyLinkToClipboard)  
+})(document);
 
-$copyPartyLink.addEventListener("click", partyLinkToClipboard)
