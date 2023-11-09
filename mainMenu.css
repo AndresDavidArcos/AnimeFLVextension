@@ -218,6 +218,7 @@ html {
   border-bottom: 2px solid #332D2D;
 }
 
+
 .createRoom > .profileIcon {
   margin-bottom: 5px;
 }
@@ -228,6 +229,12 @@ html {
   justify-content: center;
   align-items: center;
 }
+
+.createRoom > form > .lock {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
 
 .createRoom > form > button {
   background: #CC0001;
@@ -273,23 +280,20 @@ html {
   font-size: 16px;
 }
 
-.usersConnectedIcon {
-  grid-area: usersConnectedIcon;
+.usersConnected {
+  grid-area: usersConnected;
   align-self: center;
+  justify-self: start;
+  align-self: end;
+  justify-self: center;  
 }
 
-.usersConnectedNumber{
+.usersConnectedNumber {
   color: #797979;
-  grid-area: usersConnectedNumber;
   font-weight: 400;
   font-size: 16px;
-  align-self: end;
-  justify-self: start;
-  margin: 4px
-}
-
-.lock {
-  grid-area: lock;
+  margin: 4px;
+  display: inline-block;
 }
 
 .roomEnterBtn {
@@ -307,7 +311,7 @@ html {
   grid-template-columns: 2fr 4fr repeat(3, 0.5fr);
   grid-template-rows: 1fr 2fr;
   grid-template-areas: 
-  "profileIcon username usersConnectedIcon usersConnectedNumber lock"
+  "profileIcon username usersConnected    usersConnected       usersConnected"
   "profileIcon roomName  roomEnterBtn      roomEnterBtn         roomEnterBtn";
 }
 

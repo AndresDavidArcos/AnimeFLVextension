@@ -11,12 +11,13 @@ export default function initRoomsWithUser(user){
     $roomsFragment = d.createDocumentFragment(),
     $container = d.querySelector(".roomsContainer"),
     $createRoomForm = d.getElementById("createRoomForm"),
+    $lock = d.querySelector(".lock"),
     $createRoomError = d.querySelector(".createRoomError");
 
     let url = "",
     videoProvider = "",
-    rooms = {};
-    
+    rooms = {},
+    createPrivateRoom = true;
     loadRooms();
 
 async function loadRooms(){
@@ -32,16 +33,17 @@ async function loadRooms(){
             rooms = await response.json();
             for(const roomId in rooms){
                 const room = rooms[roomId];
-                const $clone = d.importNode($roomTemplate, true);
-                $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${room.avatar}.png`);
-                $clone.querySelector(".usersConnectedNumber").textContent = room.usersConnected;
-                $clone.querySelector(".lock").setAttribute("src", room.lock ? "resources/tools/lock.svg" : "resources/tools/unlock.svg");
-                $clone.querySelector(".username").textContent = room.username;
-                $clone.querySelector(".roomName").textContent = room.roomName;
-                $clone.querySelector(".roomEnterBtn").setAttribute("data-roomId", room.roomId);
-                $roomsFragment.appendChild($clone);
-            }
-            $container.appendChild($roomsFragment);            
+                if(!room.lock){
+                    const $clone = d.importNode($roomTemplate, true);
+                    $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${room.avatar}.png`);
+                    $clone.querySelector(".usersConnectedNumber").textContent = room.usersConnected;
+                    $clone.querySelector(".username").textContent = room.username;
+                    $clone.querySelector(".roomName").textContent = room.roomName;
+                    $clone.querySelector(".roomEnterBtn").setAttribute("data-roomId", room.roomId);
+                    $roomsFragment.appendChild($clone);
+                }
+                $container.appendChild($roomsFragment); 
+                }
         } else {
             throw new Error(response.msg);
         }
@@ -85,6 +87,7 @@ async function loadRooms(){
                     roomName: partyName,
                     avatar: "male",
                     username: user,
+                    lock: createPrivateRoom,
                     url: url,
                     videoProvider: videoProvider
                 }
@@ -113,6 +116,16 @@ async function loadRooms(){
         }else{
                 showError("Para iniciar una party debes seleccionar un anime de la pagina AnimeFLV.")
             }
+    })
+
+    $lock.addEventListener("click", e => {
+        if(createPrivateRoom){
+            createPrivateRoom = false;
+            $lock.setAttribute("src", "resources/tools/unlock.svg")
+        }else{
+            createPrivateRoom = true;
+            $lock.setAttribute("src", "resources/tools/lock.svg")
+        }
     })
 
     d.addEventListener("click", e => {

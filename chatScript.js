@@ -27,22 +27,41 @@
     switch (message.type) {
       case "hostRoomJoined":
         if(!eventAlreadyHappened){
-          isHost = true;
-          username = message.username;
-          roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
           eventAlreadyHappened = true;
+          roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
+          if(roomInfo.type === "error"){
+            buildMessageHtml({
+              avatar: "male",
+              username: "Sistema",
+              content: "La room a la que tratas de unirte no existe, visita el menu de las rooms para unirte a una o pide que te vuelvan a enviar el link de la room",
+              date: Date.now()
+            })
+          }else{
+            isHost = true;
+            username = message.username;
+          }          
         }
         break;
       case "guestRoomJoined":
         if(!eventAlreadyHappened){
-          isHost = false;
-          username = message.username;
-          roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
-          roomInfo.history.forEach(msg=>{
-            buildMessageHtml(msg)
-          })
           eventAlreadyHappened = true;
-        }
+          roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
+          if(roomInfo.type === "error"){
+            buildMessageHtml({
+              avatar: "male",
+              username: "Sistema",
+              content: "La room a la que tratas de unirte no existe, visita el menu de las rooms para unirte a una o pide que te vuelvan a enviar el link de la room",
+              date: Date.now()
+            })
+          }else{
+            isHost = false;
+            username = message.username;
+            roomInfo.history.forEach(msg=>{
+              buildMessageHtml(msg)
+            })
+          }
+          }
+
         break;
       default:
         break;

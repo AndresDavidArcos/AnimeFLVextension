@@ -42,7 +42,6 @@ html {
     justify-content: space-around;
     align-items: center;
     z-index: 1000;
-
   }
   
   .modalWindow.hide {
@@ -61,6 +60,19 @@ html {
     align-self: flex-start;
     margin-left: 30px;
   }
+
+  .modalWindowError > p {
+    color: #445867;
+    font-size: 16px;
+    align-self: center;
+    padding: 6px;
+  }  
+
+  
+  .modalWindowError > h2 {
+    color: red;
+  }  
+
 
   .modalWindow > button {
     border: none;
