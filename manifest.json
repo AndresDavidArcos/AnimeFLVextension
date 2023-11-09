@@ -6,7 +6,8 @@
     "description": "Mira anime junto a tus amigos o conoce nuevas personas con quienes ver anime!.",
   
     "permissions": [
-      "activeTab"
+      "activeTab",
+      "storage"
     ],
     "action": {
       "default_title": "AnimeParty", 
@@ -16,7 +17,8 @@
       {
         "all_frames": true,
         "matches": ["<all_urls>"],
-        "js": ["index.js"]
+        "js": ["index.js"],
+        "css": ["modal.css"]
       }
     ],
     "web_accessible_resources": [

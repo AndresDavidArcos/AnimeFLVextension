@@ -206,7 +206,7 @@ html {
 
 .rooms {
   width: 350px;
-  min-height: 200px;
+  min-height: 320px;
   height: auto;
 }
 .createRoom {

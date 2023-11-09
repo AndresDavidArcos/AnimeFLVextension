@@ -4,27 +4,63 @@ videoFounded = false;
 const currentUrl = window.location.href;
 const verifyUrl = "https://www3.animeflv.net/ver/";
 
+
 if (window.frameElement === null && currentUrl.startsWith(verifyUrl)) {
+
+    const createChatView = (type, roomId, username) => {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const $chatIframe = d.createElement('iframe');
+        $chatIframe.src = chrome.runtime.getURL('chatView.html');
+        $chatIframe.allow = "clipboard-read; clipboard-write"
+        $chatIframe.style.width = `${viewportWidth * 0.23}px`;
+        $chatIframe.style.height = `${viewportHeight * 0.7}px`;
+        $chatIframe.style.position = 'absolute';
+        $chatIframe.style.top = '100px';
+        $chatIframe.style.right = '-100px'; 
+        $chatIframe.addEventListener("load", e => {
+            chrome.runtime.sendMessage({ type, roomId, username});
+        })
+        const $animeNews = d.querySelector(".CpCnC"); 
+        $animeNews.style.top = "700px"             
+        $animeNews.insertAdjacentElement('beforebegin', $chatIframe);
+    }
+
     animeUrl = currentUrl;
-    const urlSearchParams = new URLSearchParams(animeUrl);
-    if (urlSearchParams.has('partyId')) {
-                const partyId = urlSearchParams.get('partyId');
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
-                const $chatIframe = d.createElement('iframe');
-                $chatIframe.src = chrome.runtime.getURL('chatView.html');
-                $chatIframe.allow = "clipboard-read; clipboard-write"
-                $chatIframe.style.width = `${viewportWidth * 0.2}px`;
-                $chatIframe.style.height = `${viewportHeight * 0.7}px`;
-                $chatIframe.style.position = 'absolute';
-                $chatIframe.style.top = '100px';
-                $chatIframe.style.right = '-100px'; 
-                $chatIframe.addEventListener("load", e => {
-                    chrome.runtime.sendMessage({ type: "getPartyId", partyId});
+    const searchParams = new URL(animeUrl).searchParams;
+    if (searchParams.has('roomId')) {
+        chrome.storage.sync.get('username', (data) => {
+            const {username} = data;
+            if(!username){
+                const modalHtml = `
+                <div class="frame">
+                <div class="modalWindow">
+                    <h2>Bienvenido a AnimeParty!</h2>
+                    <p>Date a conocer</p>
+                    <input type="text" placeholder="Escribe tu nickname">
+                    <button>Enviar</button>
+                </div>
+                </div>
+                `;
+    
+                d.querySelector("body").insertAdjacentHTML("afterbegin", modalHtml);
+                const $modal = d.querySelector(".frame");
+                d.querySelector(".modalWindow button").addEventListener("click", e => {
+                    const inputValue = $modal.querySelector("input").value;
+                    if(inputValue){
+                        chrome.storage.sync.set({username: inputValue})
+                        $modal.remove();
+                        const roomId = searchParams.get('roomId');
+                        createChatView("guestRoomJoined", roomId, inputValue)  
+                    }
+                   
                 })
-                const $animeNews = d.querySelector(".CpCnC"); 
-                $animeNews.style.top = "700px"             
-                $animeNews.insertAdjacentElement('beforebegin', $chatIframe);
+            }else{
+                const roomId = searchParams.get('roomId');
+                createChatView("guestRoomJoined", roomId, username) 
+            }
+        });
+
     }
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         switch (msg.type) {
@@ -32,24 +68,10 @@ if (window.frameElement === null && currentUrl.startsWith(verifyUrl)) {
                 sendResponse(animeUrl);
                 break;
             case "roomCreated":
-                //Insert chatView
-                const partyData = msg.partyData;
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
-                const $chatIframe = d.createElement('iframe');
-                $chatIframe.src = chrome.runtime.getURL('chatView.html');
-                $chatIframe.allow = "clipboard-read; clipboard-write"
-                $chatIframe.style.width = `${viewportWidth * 0.23}px`;
-                $chatIframe.style.height = `${viewportHeight * 0.7}px`;
-                $chatIframe.style.position = 'absolute';
-                $chatIframe.style.top = '100px';
-                $chatIframe.style.right = '-100px'; 
-                $chatIframe.addEventListener("load", e => {
-                    chrome.runtime.sendMessage({ type: "hostRoomJoined", roomId: partyData.roomId});
-                })
-                const $animeNews = d.querySelector(".CpCnC"); 
-                $animeNews.style.top = "700px"       
-                $animeNews.insertAdjacentElement('beforebegin', $chatIframe);
+                const roomId = msg.partyData.roomId;
+                const username = msg.partyData.username;
+
+               createChatView("hostRoomJoined", roomId, username)
             default:
                 break;
         }

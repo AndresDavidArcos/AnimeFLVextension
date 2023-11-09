@@ -9,7 +9,6 @@
   })
 
   socket.on('roomMessage',messageObj=>{
-    console.log(messageObj);
     buildMessageHtml(messageObj);
   })
 
@@ -17,25 +16,34 @@
   $sendBtn = d.querySelector(".sendMessageBtn"),
   $copyPartyLink = d.getElementById("clipPath"),
   $messageTemplate = d.getElementById("templateMessage").content,
-  $fragment = d.createDocumentFragment(),
   $messagesContainer = d.querySelector(".messages");
   let roomInfo = {},
-  isHost = false;
+  isHost = false,
+  eventAlreadyHappened = false,
+  username;
 
   chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     console.log("Mensaje recibido en chatScript.js:", message);
     switch (message.type) {
       case "hostRoomJoined":
+        if(!eventAlreadyHappened){
           isHost = true;
+          username = message.username;
           roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
+          eventAlreadyHappened = true;
+        }
         break;
       case "guestRoomJoined":
-        isHost = false;
-        roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
-        roomInfo.history.forEach(message=>{
-          buildMessageHtml(message)
-        })
-    
+        if(!eventAlreadyHappened){
+          isHost = false;
+          username = message.username;
+          roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
+          roomInfo.history.forEach(msg=>{
+            buildMessageHtml(msg)
+          })
+          eventAlreadyHappened = true;
+        }
+        break;
       default:
         break;
     }
@@ -54,12 +62,16 @@
   }
 
   function buildMessageHtml(message){
+    const isAtBottom = ($messagesContainer.scrollTop + $messagesContainer.clientHeight) / $messagesContainer.scrollHeight;
     const $clone = d.importNode($messageTemplate, true);
     $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${message.avatar}.png`);
-    $clone.querySelector(".username").textContent = message.userName;
+    $clone.querySelector(".username").textContent = message.username;
     $clone.querySelector(".messageContent").textContent = message.content;
     $clone.querySelector(".messageDate").textContent = formatDate(message.date);
     $messagesContainer.appendChild($clone)
+    if(isAtBottom === 1){
+      $messagesContainer.scrollTop = $messagesContainer.scrollHeight;
+    }
   }
   
   function partyLinkToClipboard(){
@@ -73,7 +85,7 @@
         content,
         date: Date.now(),
         avatar: 'male',
-        userName: 'testUser',
+        username,
     })
     $input.value = ""; 
     }

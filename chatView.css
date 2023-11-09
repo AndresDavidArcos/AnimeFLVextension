@@ -104,12 +104,12 @@ background-color: #FFC107;
 
   .messageDate {
     grid-area: messageDate;
-    align-self: end;
+    align-self: center;
     justify-self: start;
     color: #797979;
-    font-size: 12px;
+    font-size: 10px;
     margin-right: 12px;
-  }  
+}
 .messageContent {
     grid-area: messageContent;
     font-family: var(--secondaryFont);

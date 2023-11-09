@@ -1,0 +1,121 @@
+html {
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+  
+  *,
+  *::after,
+  *::before {
+    box-sizing: inherit;
+  }
+
+.frame {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 1px 2px 10px 0px rgba(0, 0, 0, 0.253);
+    background: #3f3f3f56;
+    font-family: "Pattaya", Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+.modalWindow p{
+    margin: 0;
+}
+.modalWindow {
+    width: 280px;
+    height: 210px;
+    border-radius: 4px;
+    box-shadow: 2px 4px 10px 0px rgba(0, 0, 0, 0.4);
+    background-color: #fff;
+    animation: show .7s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+
+  }
+  
+  .modalWindow.hide {
+    animation: hide .7s ease-in-out forwards;
+  }
+
+  .modalWindow > h2{
+    font-weight: 400;
+    font-family: Raleway;
+    text-align: center;
+  }
+
+  .modalWindow > p {
+    color: #a1a1a1;
+    font-size: 12px;
+    align-self: flex-start;
+    margin-left: 30px;
+  }
+
+  .modalWindow > button {
+    border: none;
+    cursor: pointer;  
+    padding: 1rem;
+    width: 80%;
+    height: 35px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    font-family: Raleway;
+    border-radius: 40px;
+    background-color: #FFC107;
+    color: white;
+    line-height: 0;
+  }
+
+  .modalWindow > input {
+    border: solid 2px #a1a1a1;
+    border-radius: 20px;
+    width: 80%;
+  }
+
+  .modalWindow > input::placeholder {
+    font-size: 12px;
+    color: #a1a1a1
+  }
+  
+
+
+
+@keyframes show {
+    0% {
+        transform: scale(0);
+    }
+    60% {
+        transform: scale(1.1);
+    }
+    80% {
+        transform: scale(.9);
+    }
+    100% {
+        transform: scale(1);
+    }
+  }
+  
+  @keyframes hide {
+  0% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(0);
+  }
+  }
