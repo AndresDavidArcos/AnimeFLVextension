@@ -154,14 +154,20 @@ import(src).then(endpointsModule => {
         
     
     }else{
+        d.body.click();
         d.querySelectorAll("video").forEach((item) => {
             console.log("video encontrado!", item)            
             chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 console.log("Mensajes capturados en el listener del Iframe", msg)
                 switch (msg.type) {
-                    case "syncVideoTime":
-                        const {time} = msg;
+                    case "syncVideoState":
+                        const {time, paused} = msg.currentVideoState;
                         item.currentTime = time;
+                        if(!paused){
+                            item.play();
+                        }else{
+                            item.pause();
+                        }
                         sendResponse(true);
                         break;       
                     case "videoRequest":
@@ -180,8 +186,8 @@ import(src).then(endpointsModule => {
                         }
                         sendResponse(videoProvider);
                         break;
-                    case "getCurrentVideoTime":
-                        sendResponse(item.currentTime);
+                    case "getCurrentVideoState":
+                        sendResponse({time: item.currentTime, paused: item.paused});
                         break;
                     default:
                         break;

@@ -37,23 +37,41 @@
       }else{
         roomInfo = serverRes;
         if(userType === 'guest'){
+
+        const waitForButtonClick = new Promise(resolve => {
+          buildMessageHtml({...genericError, content: "Te has unido a una party! Necesitamos que confirmes que podemos sincronizar el video."})
+          const $confirmButton = d.createElement("button");
+          $confirmButton.classList.add("btn");
+          $confirmButton.textContent = "Confirmar!"
+          $confirmButton.style.borderRadius = "20px";
+          $confirmButton.style.marginLeft = "60px";
+          $confirmButton.style.marginTop = "-21px";
+          $confirmButton.style.width = "110px";  
+          $messagesContainer.appendChild($confirmButton);
+          $confirmButton.addEventListener("click", e => {
+            $confirmButton.previousElementSibling.remove();
+            $confirmButton.remove();
+            resolve();
+          });
+        });
+        waitForButtonClick.then(async () => {
           let attempts = 0;
           const maxAttempts = 6;             
           while (attempts < maxAttempts) {
-            const socketRes = await socket.emitWithAck('askCurrentVideoTime', roomInfo.roomId);  
+            const socketRes = await socket.emitWithAck('askCurrentVideoState', roomInfo.roomId);  
       
             if (socketRes.type === 'error') {
               buildMessageHtml({...genericError, content: `${socketRes.message} Volviendo a intentar.`})
               attempts++;
             } else {
-                const currentVideoTime = socketRes;
+                const currentVideoState = socketRes;
                 const roomTab = await chrome.tabs.query({ url: `${roomInfo.url}?roomId=${roomInfo.roomId}` });
                 chrome.tabs.sendMessage(roomTab[0].id,{type:"syncVideoProvider", provider: roomInfo.videoProvider});
-                const syncVideoTime = setInterval(async ()=>{
+                const syncVideoState = setInterval(async ()=>{
                   try {
-                    const res = await chrome.tabs.sendMessage(roomTab[0].id,{type:"syncVideoTime", time: currentVideoTime});
+                    const res = await chrome.tabs.sendMessage(roomTab[0].id,{type:"syncVideoState", currentVideoState});
                     if(res === true){
-                      clearInterval(syncVideoTime)
+                      clearInterval(syncVideoState)
                     }
                   } catch (error) {
                     console.log("Error al intentar sincronizar el video desde chatScript: ", error)
@@ -71,6 +89,8 @@
             roomInfo.history.forEach(msg=>{
             buildMessageHtml(msg)
           })    
+        })
+         
         }
       }
     } catch (error) {
@@ -84,13 +104,13 @@
     buildMessageHtml(messageObj);
   })
 
-  socket.on('getCurrentVideoTime', async (message, sendResponse)=> {
+  socket.on('getCurrentVideoState', async (message, sendResponse)=> {
         try {     
           const roomTab = await chrome.tabs.query({ url: `${roomInfo.url}?roomId=${roomInfo.roomId}` });
-          const videoTime = await chrome.tabs.sendMessage(roomTab[0].id,{type:"getCurrentVideoTime"});
-          sendResponse(videoTime);
+          const videoState = await chrome.tabs.sendMessage(roomTab[0].id,{type:"getCurrentVideoState"});
+          sendResponse(videoState);
         } catch (error) {
-            console.log("error en chatScript al getCurrentVideoTime: ", error);
+            console.log("error en chatScript al getCurrentVideoState: ", error);
         }
   })
 
