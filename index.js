@@ -4,9 +4,8 @@ import(src).then(endpointsModule => {
     const d = document;
     let animeUrl = "";
     const currentUrl = window.location.href;
-    const verifyUrl = "https://www3.animeflv.net/ver/";
-    
-    
+    const verifyUrl = "https://www3.animeflv.net/ver/";    
+
     if (window.frameElement === null && currentUrl.startsWith(verifyUrl)) {
         animeUrl = currentUrl;
         const searchParams = new URL(animeUrl).searchParams;
@@ -116,6 +115,7 @@ import(src).then(endpointsModule => {
     
         }
         chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+            console.log("Mensajes capturados en el listener de animeFLV", msg)
             switch (msg.type) {
                 case "urlRequest":
                     sendResponse(animeUrl);
@@ -123,7 +123,29 @@ import(src).then(endpointsModule => {
                 case "roomCreated":
                     const roomId = msg.partyData.roomId;
                     const username = msg.partyData.username;
+                    const $videoOptionsContainerHost = d.querySelector(".nav-pills");
+                    if ($videoOptionsContainerHost) {
+                        const noSyncOptionsHost = $videoOptionsContainerHost.querySelectorAll(`li:not(:is([data-original-title="${msg.partyData.videoProvider}"], [title="${msg.partyData.videoProvider}"]))`);
+                        noSyncOptionsHost.forEach(li => {
+                            li.remove();
+                        })
+                    }  
                    createChatView("host", roomId, username)
+                   break;
+                case "syncVideoProvider":
+                    const {provider} = msg;
+                    const $videoOptionsContainer = d.querySelector(".nav-pills");
+                    if ($videoOptionsContainer) {
+                        const noSyncOptions = $videoOptionsContainer.querySelectorAll(`li:not(:is([data-original-title="${provider}"], [title="${provider}"]))`);
+                        noSyncOptions.forEach(li => {
+                            li.remove();
+                        })
+                        const $syncOption = $videoOptionsContainer.querySelector(`li:is([data-original-title="${provider}"], [title="${provider}"])`)                        
+                        $syncOption.click();
+                      }else{
+                        console.log("No se encontraron opciones de video");
+                      }
+                    break;
                 default:
                     break;
             }
@@ -131,47 +153,53 @@ import(src).then(endpointsModule => {
     
         
     
-    } 
-    
-    
-    d.querySelectorAll("video").forEach((item) => {
-        console.log("video encontrado!", item)
-        chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-            switch (msg.type) {
-                case "videoRequest":
-                    const videoProviderServer = new URL(new URL(item.src).origin).hostname;
-                    let videoProvider = "";
-                    switch (videoProviderServer) {
-                        case "vidcache.net":
-                            videoProvider = "YourUpload";
-                            break;
-                        case "streamwish.to":
-                            videoProvider = "SW";
-                            break;                        
-                    
-                        default:
-                            break;
-                    }
-                    sendResponse(videoProvider);
-                    break;
-                case "getCurrentVideoTime":
-                    sendResponse(item.currentTime);
-                default:
-                    break;
-            }
-        })
-        item.addEventListener("play", function() {
-            chrome.runtime.sendMessage({ type: "playback", state: "play" });
+    }else{
+        d.querySelectorAll("video").forEach((item) => {
+            console.log("video encontrado!", item)            
+            chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+                console.log("Mensajes capturados en el listener del Iframe", msg)
+                switch (msg.type) {
+                    case "syncVideoTime":
+                        const {time} = msg;
+                        item.currentTime = time;
+                        sendResponse(true);
+                        break;       
+                    case "videoRequest":
+                        const videoProviderServer = new URL(new URL(item.src).origin).hostname;
+                        let videoProvider = "";
+                        switch (videoProviderServer) {
+                            case "vidcache.net":
+                                videoProvider = "YourUpload";
+                                break;
+                            case "streamwish.to":
+                                videoProvider = "SW";
+                                break;                        
+                        
+                            default:
+                                break;
+                        }
+                        sendResponse(videoProvider);
+                        break;
+                    case "getCurrentVideoTime":
+                        sendResponse(item.currentTime);
+                        break;
+                    default:
+                        break;
+                }
+            })
+            item.addEventListener("play", function() {
+                chrome.runtime.sendMessage({ type: "playback", state: "play" });
+            });
+                
+            item.addEventListener("pause", function() {
+                chrome.runtime.sendMessage({ type: "playback", state: "pause" });
+             });
+                
+             item.addEventListener("seeked", function() {
+                chrome.runtime.sendMessage({ type: "videoTimeChange", time: item.currentTime });
+          });   
         });
-            
-        item.addEventListener("pause", function() {
-            chrome.runtime.sendMessage({ type: "playback", state: "pause" });
-         });
-            
-         item.addEventListener("seeked", function() {
-            chrome.runtime.sendMessage({ type: "videoTimeChange", time: item.currentTime });
-      });   
-    });
+    } 
 })
 .catch(err => {
     console.log("error al cargar modulo: ", err)

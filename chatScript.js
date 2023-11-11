@@ -46,7 +46,20 @@
               buildMessageHtml({...genericError, content: `${socketRes.message} Volviendo a intentar.`})
               attempts++;
             } else {
-                currentVideoTime = socketRes;
+                const currentVideoTime = socketRes;
+                const roomTab = await chrome.tabs.query({ url: `${roomInfo.url}?roomId=${roomInfo.roomId}` });
+                chrome.tabs.sendMessage(roomTab[0].id,{type:"syncVideoProvider", provider: roomInfo.videoProvider});
+                const syncVideoTime = setInterval(async ()=>{
+                  try {
+                    const res = await chrome.tabs.sendMessage(roomTab[0].id,{type:"syncVideoTime", time: currentVideoTime});
+                    if(res === true){
+                      clearInterval(syncVideoTime)
+                    }
+                  } catch (error) {
+                    console.log("Error al intentar sincronizar el video desde chatScript: ", error)
+                  }
+                }, 1000)
+
                 break;
                 }
               }
@@ -83,7 +96,7 @@
 
   chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     console.log("Mensaje recibido en chatScript.js:", message, "sender: ", sender);
-    switch (message.type) {
+    switch (message.type) {       
         case 'playback':
           switch (message.state) {
             case 'play':
