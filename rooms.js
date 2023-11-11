@@ -62,6 +62,9 @@ async function loadRooms(){
         try {
             const tabs = await chrome.tabs.query({active:true, currentWindow: true})
             url = await chrome.tabs.sendMessage(tabs[0].id,{type:"urlRequest"});
+            const urlCleaner = new URL(url);
+            url = urlCleaner.origin+urlCleaner.pathname
+            
         } catch (error) {
             console.log("No se encontro una url");
         }

@@ -1,68 +1,103 @@
 (async (d) => {
-  
   const src = chrome.runtime.getURL("socket.io.esm.min.js");
   const socketModule = await import(src);
   const {io} = socketModule.default;
-  const socket = io('http://localhost:9000');
-  socket.on('connect', ()=>{
-    console.log(`El cliente con la id ${socket.id} se ha conectado!`)
-  })
+  const serverEndpointsSrc = chrome.runtime.getURL("ServerEndpoints.js");
+  const serverEndpointsModule = await import(serverEndpointsSrc);
+  const {getSocket} = serverEndpointsModule.default;
+  const socket = io(getSocket);
 
-  socket.on('roomMessage',messageObj=>{
-    buildMessageHtml(messageObj);
-  })
+  const chatParameters = new URL(window.location.href).searchParams
+  const username = chatParameters.get('username'),
+   roomId = chatParameters.get('roomId'),
+   userType = chatParameters.get('type');
 
   const $input = d.querySelector(".sendMessageInput"),
   $sendBtn = d.querySelector(".sendMessageBtn"),
   $copyPartyLink = d.getElementById("clipPath"),
   $messageTemplate = d.getElementById("templateMessage").content,
   $messagesContainer = d.querySelector(".messages");
-  let roomInfo = {},
-  isHost = false,
-  eventAlreadyHappened = false,
-  username;
+
+  let roomInfo = {};
+
+  const genericError = {
+    avatar: "male",
+    username: "Sistema",
+    content: "Ocurrio un error inesperado! :cc",
+    date: Date.now()
+  }
+
+
+  socket.on('connect', async ()=>{
+    console.log(`El cliente con la id ${socket.id} se ha conectado!`)
+    try {
+      const serverRes = await socket.emitWithAck('joinRoom', roomId);
+      if(serverRes.type === "error"){
+        buildMessageHtml({...genericError, content: "La room a la que tratas de unirte no existe, visita el menu de las rooms para unirte a una o pide que te vuelvan a enviar el link de la room"})
+      }else{
+        roomInfo = serverRes;
+        if(userType === 'guest'){
+          let attempts = 0;
+          const maxAttempts = 6;             
+          while (attempts < maxAttempts) {
+            const socketRes = await socket.emitWithAck('askCurrentVideoTime', roomInfo.roomId);  
+      
+            if (socketRes.type === 'error') {
+              buildMessageHtml({...genericError, content: `${socketRes.message} Volviendo a intentar.`})
+              attempts++;
+            } else {
+                currentVideoTime = socketRes;
+                break;
+                }
+              }
+            
+            if (attempts === maxAttempts) {
+                buildMessageHtml({...genericError, content: "Se alcanzó el número máximo de intentos sin éxito."})
+            }      
+      
+            roomInfo.history.forEach(msg=>{
+            buildMessageHtml(msg)
+          })    
+        }
+      }
+    } catch (error) {
+      console.log("Error al intentar conectarse: ", error)
+      buildMessageHtml({...genericError, content: "El servidor esta caido, si desea mas detalles puede contactarse con el desarrollador."})
+    }
+
+  })
+
+  socket.on('roomMessage',messageObj=>{
+    buildMessageHtml(messageObj);
+  })
+
+  socket.on('getCurrentVideoTime', async (message, sendResponse)=> {
+        try {     
+          const roomTab = await chrome.tabs.query({ url: `${roomInfo.url}?roomId=${roomInfo.roomId}` });
+          const videoTime = await chrome.tabs.sendMessage(roomTab[0].id,{type:"getCurrentVideoTime"});
+          sendResponse(videoTime);
+        } catch (error) {
+            console.log("error en chatScript al getCurrentVideoTime: ", error);
+        }
+  })
 
   chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-    console.log("Mensaje recibido en chatScript.js:", message);
+    console.log("Mensaje recibido en chatScript.js:", message, "sender: ", sender);
     switch (message.type) {
-      case "hostRoomJoined":
-        if(!eventAlreadyHappened){
-          eventAlreadyHappened = true;
-          roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
-          if(roomInfo.type === "error"){
-            buildMessageHtml({
-              avatar: "male",
-              username: "Sistema",
-              content: "La room a la que tratas de unirte no existe, visita el menu de las rooms para unirte a una o pide que te vuelvan a enviar el link de la room",
-              date: Date.now()
-            })
-          }else{
-            isHost = true;
-            username = message.username;
-          }          
-        }
-        break;
-      case "guestRoomJoined":
-        if(!eventAlreadyHappened){
-          eventAlreadyHappened = true;
-          roomInfo = await socket.emitWithAck('joinRoom',message.roomId);
-          if(roomInfo.type === "error"){
-            buildMessageHtml({
-              avatar: "male",
-              username: "Sistema",
-              content: "La room a la que tratas de unirte no existe, visita el menu de las rooms para unirte a una o pide que te vuelvan a enviar el link de la room",
-              date: Date.now()
-            })
-          }else{
-            isHost = false;
-            username = message.username;
-            roomInfo.history.forEach(msg=>{
-              buildMessageHtml(msg)
-            })
-          }
-          }
+        case 'playback':
+          switch (message.state) {
+            case 'play':
+              
+              break;
+            case 'pause':
 
+            default:
+              break;
+          }
         break;
+        case 'videoTimeChange':
+
+          break;
       default:
         break;
     }
