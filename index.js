@@ -21,11 +21,12 @@ import(src).then(endpointsModule => {
             $chatIframe.src = chrome.runtime.getURL('chatView.html')+`?username=${username}&roomId=${roomId}&type=${type}`;
             $chatIframe.classList.add("animePartyChatView");
             $chatIframe.allow = "clipboard-read; clipboard-write"
-            $chatIframe.style.width = `${viewportWidth * 0.23}px`;
-            $chatIframe.style.height = `${viewportHeight * 0.7}px`;
+            $chatIframe.style.width = `${viewportWidth * 0.24}px`;
+            $chatIframe.style.height = `${viewportHeight * 0.8}px`;
             $chatIframe.style.position = 'absolute';
             $chatIframe.style.top = '100px';
-            $chatIframe.style.right = '-100px'; 
+            $chatIframe.style.right = '-50px'; 
+          
             $chatIframe.addEventListener("load", e => {
                 if(type === 'host'){
                     window.history.replaceState(null, null, `?roomId=${roomId}`);
@@ -153,19 +154,51 @@ import(src).then(endpointsModule => {
     
         
     
-    }else{
-        d.body.click();
+    }else{        
         d.querySelectorAll("video").forEach((item) => {
-            console.log("video encontrado!", item)            
+            console.log("video encontrado!", item);
+            
+            let playBySync = false;
+            let pauseBySync = false;
+            let seekBySync = false;
+
+            const handlePlay = () =>{
+                if(!playBySync){
+                    chrome.runtime.sendMessage({ type: "playback", state: "play" });
+                }else{
+                    playBySync = false;
+                }
+            }
+
+            const handlePause = () =>{
+                if(!pauseBySync){
+                chrome.runtime.sendMessage({ type: "playback", state: "pause" });
+            }else{
+                pauseBySync = false;
+            }                
+            }
+
+            const handleSeek = () =>{
+                if(!seekBySync){
+                chrome.runtime.sendMessage({ type: "videoTimeChange", time: item.currentTime });
+                }else{
+                    seekBySync = false;
+                }                    
+            }
+                        
+            
             chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 console.log("Mensajes capturados en el listener del Iframe", msg)
                 switch (msg.type) {
                     case "syncVideoState":
                         const {time, paused} = msg.currentVideoState;
+                        seekBySync = true;
                         item.currentTime = time;
                         if(!paused){
+                            playBySync = true;
                             item.play();
                         }else{
+                            pauseBySync = true;
                             item.pause();
                         }
                         sendResponse(true);
@@ -189,21 +222,40 @@ import(src).then(endpointsModule => {
                     case "getCurrentVideoState":
                         sendResponse({time: item.currentTime, paused: item.paused});
                         break;
+                    case "updateVideoState":
+                        switch (msg.state) {
+                            case 'play':
+                             if(item.paused){
+                                playBySync = true;
+                                item.play();
+                             }
+                             break;
+                            case 'pause':
+                            if(!item.paused){
+                                pauseBySync = true;
+                                item.pause();
+                            }                                
+                             break;
+                            case 'time':                                
+                            if(Math.abs(item.currentTime-msg.time) > 3){
+                                seekBySync = true;
+                                item.currentTime = msg.time;   
+                            }
+                             break;                                                        
+                            default:
+                                break;
+                        }
+                        break;                        
                     default:
                         break;
                 }
             })
-            item.addEventListener("play", function() {
-                chrome.runtime.sendMessage({ type: "playback", state: "play" });
-            });
+            
+            item.addEventListener("play", handlePlay);
                 
-            item.addEventListener("pause", function() {
-                chrome.runtime.sendMessage({ type: "playback", state: "pause" });
-             });
+            item.addEventListener("pause", handlePause);
                 
-             item.addEventListener("seeked", function() {
-                chrome.runtime.sendMessage({ type: "videoTimeChange", time: item.currentTime });
-          });   
+             item.addEventListener("seeked", handleSeek);   
         });
     } 
 })

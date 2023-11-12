@@ -90,6 +90,9 @@ background-color: #FFC107;
     justify-self: center;
     align-self: start;
   }
+ .profileIconBackgroundpink  {
+  background-color: #f288ab;
+ }
   
   .username {
     grid-area: username;
