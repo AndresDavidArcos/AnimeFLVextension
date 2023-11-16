@@ -8,16 +8,12 @@
     const socket = io(getSocket);
 
     const chatParameters = new URL(window.location.href).searchParams
-    const username = chatParameters.get('username'),
-        roomId = chatParameters.get('roomId'),
-        userType = chatParameters.get('type'),
-        situation = chatParameters.get('situation')
+    const username = chatParameters.get('username'), roomId = chatParameters.get('roomId'),
+        userType = chatParameters.get('type'), situation = chatParameters.get('situation')
 
 
-    const $input = d.querySelector(".sendMessageInput"),
-        $sendBtn = d.querySelector(".sendMessageBtn"),
-        $copyPartyLink = d.getElementById("clipPath"),
-        $messageTemplate = d.getElementById("templateMessage").content,
+    const $input = d.querySelector(".sendMessageInput"), $sendBtn = d.querySelector(".sendMessageBtn"),
+        $copyPartyLink = d.getElementById("clipPath"), $messageTemplate = d.getElementById("templateMessage").content,
         $messagesContainer = d.querySelector(".messages");
 
     let roomInfo = {};
@@ -31,8 +27,6 @@
     }
 
     const [currentTab] = await chrome.tabs.query({active: true, currentWindow: true});
-
-
     const joinRoom = async () => {
         try {
             const serverRes = await socket.emitWithAck('joinRoom', roomId, username, userType);
@@ -100,51 +94,57 @@
                 await joinRoom()
 
                 //obtiene el tiempo de video que lleva la room y si esta o no en pausa para sincronizarlo con este video
+                let currentVideoState;
                 let attempts = 0;
                 const maxAttempts = 6;
                 while (attempts < maxAttempts) {
+                    console.log("intento: ", attempts)
                     const socketRes = await socket.emitWithAck('askCurrentVideoState', roomInfo.roomId);
-
+                    console.log("respuesta: ", socketRes)
                     if (socketRes.type === 'error') {
                         buildMessageHtml({
-                            ...genericError,
-                            date: Date.now(),
-                            content: `${socketRes.message} Volviendo a intentar.`
+                            ...genericError, date: Date.now(), content: `${socketRes.message} Volviendo a intentar.`
                         })
                         attempts++;
                     } else {
-                        const currentVideoState = socketRes;
-                        chrome.tabs.sendMessage(currentTab.id, {
-                            type: "syncVideoProvider",
-                            provider: roomInfo.videoProvider
-                        });
-                        const syncVideoState = setInterval(async () => {
-                            try {
-                                const res = await chrome.tabs.sendMessage(currentTab.id, {
-                                    type: "syncVideoState",
-                                    currentVideoState
-                                });
-                                if (res === true) {
-                                    clearInterval(syncVideoState)
-                                }
+                        console.log("currentVideoState ", socketRes)
+                        currentVideoState = socketRes;
+                        break;
+                    }
 
-                                if (attempts === maxAttempts) {
-                                    buildMessageHtml({
-                                        ...genericError,
-                                        date: Date.now(),
-                                        content: "Se alcanzó el número máximo de intentos sin éxito."
-                                    })
-                                    clearInterval();
-                                }
-
-                            } catch (error) {
-                                console.log("Error al intentar sincronizar el video desde chatScript: ", error)
-                            }
-                        }, 1000)
-
+                    if (attempts === maxAttempts) {
+                        buildMessageHtml({
+                            ...genericError,
+                            date: Date.now(),
+                            content: "Se alcanzó el número máximo de intentos sin éxito."
+                        })
                         break;
                     }
                 }
+
+                console.log("currentVideoState despues del while: ", currentVideoState);
+                console.log("se trato de enviar mensaje syncVideoProvider a: ", currentTab)
+                chrome.tabs.sendMessage(currentTab.id, {
+                    type: "syncVideoProvider", provider: roomInfo.videoProvider
+                });
+                console.log("se trato de enviar mensaje syncVideoProvider con: ", roomInfo.videoProvider, currentTab)
+                const syncVideoState = setInterval(async () => {
+                    try {
+                        console.log("intento1 con: ", currentTab, "currentVideoState: ", currentVideoState)
+                        const res = await chrome.tabs.sendMessage(currentTab.id, {
+                            type: "syncVideoState", currentVideoState
+                        });
+                        console.log("res fue: ", res)
+                        if (res === true) {
+                            clearInterval(syncVideoState)
+                        }
+
+
+                    } catch (error) {
+                        console.log("Error al intentar sincronizar el video desde chatScript: ", error)
+                    }
+                }, 1000)
+
 
                 roomInfo.history.forEach(msg => {
                     buildMessageHtml(msg)
@@ -174,17 +174,13 @@
             switch (type) {
                 case 'play':
                     buildMessageHtml({
-                        ...genericError,
-                        date: Date.now(),
-                        content: `${senderUsername} le ha dado play al video.`
+                        ...genericError, date: Date.now(), content: `${senderUsername} le ha dado play al video.`
                     })
                     chrome.tabs.sendMessage(currentTab.id, {type: "updateVideoState", state: 'play'});
                     break;
                 case 'pause':
                     buildMessageHtml({
-                        ...genericError,
-                        date: Date.now(),
-                        content: `${senderUsername} le ha dado pausa al video.`
+                        ...genericError, date: Date.now(), content: `${senderUsername} le ha dado pausa al video.`
                     })
                     chrome.tabs.sendMessage(currentTab.id, {type: "updateVideoState", state: 'pause'});
                     break;
@@ -208,7 +204,13 @@
     })
 
     socket.on('videoPartyHasChanged', (url, roomId, senderUsername) => {
-        window.top.location.href = `${url}?roomId=${roomId}&videoPartyChangedBy=${senderUsername}`;
+        chrome.tabs.sendMessage(currentTab.id, {type: 'dontMoveParty'}, (res)=>{
+            if(res){
+                window.top.location.href = `${url}?roomId=${roomId}&videoPartyChangedBy=${senderUsername}`;
+            }else{
+                console.log("No llego el mensaje dontMoveParty, no se hara el cambio de href")
+            }
+        })
     })
 
     chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
@@ -243,11 +245,7 @@
 
     function formatDate(date) {
         const options = {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
+            year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
         };
         return new Intl.DateTimeFormat(undefined, options).format(date);
     }
@@ -301,10 +299,7 @@
         const content = $input.value;
         if (content) {
             socket.emit('newMessageToRoom', {
-                content,
-                date: Date.now(),
-                avatar: 'male',
-                username,
+                content, date: Date.now(), avatar: 'male', username,
             })
             $input.value = "";
         }
