@@ -312,6 +312,8 @@
 
 
     $sendBtn.addEventListener('click', sendMessage);
+    $input.addEventListener('keyup', event => event.key === 'Enter' ? sendMessage() : null);
+
 
     $copyPartyLink.addEventListener("click", partyLinkToClipboard)
 })(document);
