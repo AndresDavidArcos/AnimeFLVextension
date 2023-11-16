@@ -9,11 +9,15 @@
       "activeTab",
       "tabs",
       "storage"
-    ],
+    ],  
     "action": {
       "default_title": "AnimeParty", 
       "default_popup": "mainMenu.html"  
     },
+    "background": {
+      "service_worker": "backgroundScript.js",
+      "type": "module"
+    },    
     "content_scripts": [
       {
         "all_frames": true,

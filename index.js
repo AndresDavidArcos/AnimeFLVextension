@@ -10,7 +10,7 @@ import(src).then(endpointsModule => {
         animeUrl = currentUrl;
         const searchParams = new URL(animeUrl).searchParams;
         
-        const createChatView = (type, roomId, username) => {
+        const createChatView = (type, roomId, username, exceptionalCase) => {
             const $animePartyChatView = d.querySelector(".animePartyChatView")
             if($animePartyChatView){
                 $animePartyChatView.remove();
@@ -18,7 +18,19 @@ import(src).then(endpointsModule => {
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
             const $chatIframe = d.createElement('iframe');
-            $chatIframe.src = chrome.runtime.getURL('chatView.html')+`?username=${username}&roomId=${roomId}&type=${type}`;
+            if(exceptionalCase){
+                const {situation,url, videoProvider} = exceptionalCase
+                switch (situation) {
+                    case 'movingPartyToNewVideo':
+                        $chatIframe.src = chrome.runtime.getURL('chatView.html')+`?username=${username}&roomId=${roomId}&type=${type}&situation=${situation}&url=${url}&videoProvider=${videoProvider}`;
+                        break;
+                
+                    default:
+                        break;
+                }
+            }else{
+              $chatIframe.src = chrome.runtime.getURL('chatView.html')+`?username=${username}&roomId=${roomId}&type=${type}`;
+            }            
             $chatIframe.classList.add("animePartyChatView");
             $chatIframe.allow = "clipboard-read; clipboard-write"
             $chatIframe.style.width = `${viewportWidth * 0.24}px`;
@@ -31,10 +43,25 @@ import(src).then(endpointsModule => {
                 if(type === 'host'){
                     window.history.replaceState(null, null, `?roomId=${roomId}`);
                 }
+
+                if(exceptionalCase){
+                    const {situation,url, videoProvider} = exceptionalCase
+                    switch (situation) {
+                        case 'movingPartyToNewVideo':
+                            window.history.replaceState(null, null, `?roomId=${roomId}`);
+                            break;
+                    
+                        default:
+                            break;
+                    }
+                }
             })
             const $animeNews = d.querySelector(".CpCnC"); 
             $animeNews.style.top = "700px"             
             $animeNews.insertAdjacentElement('beforebegin', $chatIframe);
+            window.addEventListener('beforeunload', e => {
+                chrome.runtime.sendMessage({type: 'movePartyToNewVideo', roomId, username, userType: type})
+            })
         }
     
         const verifyRoomAndJoin = (type, roomId, username) => {
@@ -47,7 +74,7 @@ import(src).then(endpointsModule => {
                 return response.json();
             })
             .then(room => {
-                createChatView(type, roomId, username)                         
+                    createChatView(type, roomId, username)
             })
             .catch(error => {
                 console.log("catch err: ", error)
@@ -80,7 +107,7 @@ import(src).then(endpointsModule => {
     
             });
         }
-    
+        
         if (searchParams.has('roomId')) {
             chrome.storage.sync.get('username', (data) => {
                 const {username} = data;
@@ -116,12 +143,8 @@ import(src).then(endpointsModule => {
     
         }
         chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-            console.log("Mensajes capturados en el listener de animeFLV", msg)
             switch (msg.type) {
-                case "urlRequest":
-                    sendResponse(animeUrl);
-                    break;
-                case "roomCreated":
+                case "roomCreated":{
                     const roomId = msg.partyData.roomId;
                     const username = msg.partyData.username;
                     const $videoOptionsContainerHost = d.querySelector(".nav-pills");
@@ -132,8 +155,9 @@ import(src).then(endpointsModule => {
                         })
                     }  
                    createChatView("host", roomId, username)
+                    }
                    break;
-                case "syncVideoProvider":
+                case "syncVideoProvider":{
                     const {provider} = msg;
                     const $videoOptionsContainer = d.querySelector(".nav-pills");
                     if ($videoOptionsContainer) {
@@ -146,7 +170,39 @@ import(src).then(endpointsModule => {
                       }else{
                         console.log("No se encontraron opciones de video");
                       }
+                     }
+                    break;    
+                case "suggestToUsePreviousProvider" :{
+                    const {suggestedProvider} = msg;
+                    const $videoOptions = d.querySelector(".nav-pills");
+                    if ($videoOptions) {
+                        const $syncOption = $videoOptions.querySelector(`li:is([data-original-title="${suggestedProvider}"], [title="${suggestedProvider}"])`)  
+                        try {
+                            $syncOption.click();
+                        } catch (error) {
+                            console.log("No existe el provider sugerido");
+                        }
+                      }else{
+                        console.log("No se encontraron opciones de video");
+                      } 
+                      sendResponse(true);
+                    }
                     break;
+                case "updatePartyToNewVideo":{
+                    const {roomId, videoProvider, username, userType, url} = msg;
+                    const $videoOptionsContainer = d.querySelector(".nav-pills");
+                    if ($videoOptionsContainer) {
+                        const noSyncOptions = $videoOptionsContainer.querySelectorAll(`li:not(:is([data-original-title="${videoProvider}"], [title="${videoProvider}"]))`);
+                        noSyncOptions.forEach(li => {
+                            li.remove();
+                        })
+                        createChatView(userType, roomId, username, {situation: 'movingPartyToNewVideo',url, videoProvider});
+
+                      }else{
+                        console.log("No se encontraron opciones de video");
+                      }
+                     }                    
+                break;               
                 default:
                     break;
             }
@@ -188,7 +244,6 @@ import(src).then(endpointsModule => {
                         
             
             chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-                console.log("Mensajes capturados en el listener del Iframe", msg)
                 switch (msg.type) {
                     case "syncVideoState":
                         const {time, paused} = msg.currentVideoState;
@@ -262,5 +317,3 @@ import(src).then(endpointsModule => {
 .catch(err => {
     console.log("error al cargar modulo: ", err)
 })
-
-

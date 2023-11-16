@@ -60,8 +60,8 @@ async function loadRooms(){
     $createRoomForm.addEventListener("submit", async e => {
         e.preventDefault();
         try {
-            const tabs = await chrome.tabs.query({active:true, currentWindow: true})
-            url = await chrome.tabs.sendMessage(tabs[0].id,{type:"urlRequest"});
+            const [currentTab] = await chrome.tabs.query({active:true, currentWindow: true})
+            url = currentTab.url;
             const urlCleaner = new URL(url);
             url = urlCleaner.origin+urlCleaner.pathname
             
