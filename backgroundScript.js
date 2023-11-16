@@ -4,10 +4,11 @@ import ServerEndpoints from './ServerEndpoints.js'
 chrome.runtime.onMessage.addListener(async function (message, sender) {
 
     const senderMustBeInAparty = /^https:\/\/www3\.animeflv\.net\/ver\/(.*)\?roomId=.*$/;
-    const [, oldVideoTitle] = senderMustBeInAparty.exec(sender.tab.url);
-    if (sender.tab && oldVideoTitle) {
+    const match = senderMustBeInAparty.exec(sender.tab.url);
+    if (sender.tab && match) {
         switch (message.type) {
             case 'movePartyToNewVideo':
+                const [, oldVideoTitle] = match;
                 const queryOptions = {active: true, lastFocusedWindow: true};
                 const [tab] = await chrome.tabs.query(queryOptions);
                 if (tab.pendingUrl) {
