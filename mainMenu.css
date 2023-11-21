@@ -20,7 +20,7 @@
 
 .contentErrorMsg {
   margin: 10px;
-  font-family: "Quicksand";
+  font-family: "Quicksand", serif;
 }
 
 .material-symbols-outlined {
@@ -34,13 +34,14 @@
 }
 
 .modal {
+  z-index: 1000;
   position: absolute;
   top: 95px;
-  left: 60px;
-  width: 280px;
-  height: 210px;
+  left: 85px;
+  width: 230px;
+  height: 200px;
   border-radius: 4px;
-  box-shadow: 2px 4px 10px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 2px 4px 10px 0 rgba(0, 0, 0, 0.4);
   background-color: #fff;
   animation: show .7s ease-in-out;
 }
@@ -51,8 +52,8 @@
 
 .modal .warning {
   position: absolute;
-  top: 26px;
-  left: 115px;
+  top: 10px;
+  left: 90px;
   color: #fff;
 }
 
@@ -62,7 +63,7 @@
   height: auto;
   text-align: center;
   color: #445867;
-  top: 80px;
+  top: 60px;
 }
 
 .modal .content span {
@@ -86,7 +87,7 @@
   background: #ed585d;
   cursor: pointer;
   transition: all .3s ease-in-out;
-  font-family: "Quicksand";
+  font-family: "Quicksand", serif;
 }
 
 .modal .footer:hover {
@@ -132,11 +133,15 @@
 :root{
     --primaryFont: 'Manga Temple';
     --secondaryFont: 'Raleway';
+    --primaryColor: #FFC107;
+    --primaryColor-intense1: #c55b01;
+    --secondaryColor: #CC0001;
+    --thirdColor: #ee4f6c;
 }
 /* ********** Reset ********** */
 html {
     box-sizing: border-box;
-    font-family: var(--font);
+    font-family: var(--secondaryFont);
     font-size: 16px;
     scroll-behavior: smooth;
   }
@@ -161,7 +166,7 @@ html {
     border: none;
     cursor: pointer;  
     padding: 1rem;
-    transform: skewX(-20deg);
+    border-radius: 20px;
     display: inline-block;
     width: 100px;
     font-weight: bold;
@@ -169,7 +174,7 @@ html {
     text-decoration: none;
     color: rgba(25, 25, 25, 1);
     font-family: var(--primaryFont);
-    background-color: #FFC107;
+    background-color: var(--primaryColor);
   }
 .userLogin {
     display: flex;
@@ -204,50 +209,193 @@ html {
     height: 59px;
 }
 
+.selectAction {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  height: 200px;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.selectActions {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.action {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--secondaryFont);
+  text-align: center;
+}
+
+.actionIcon{
+  border-radius: 50%;
+  padding: 15px;
+  height: 100px;
+  width: 100px;
+  background-color: var(--primaryColor);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.actionAdd {
+  background-color: var(--thirdColor);
+}
+
+.actionIcon img {
+  width: 80%;
+}
+
+.createRoom {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: start;
+  width: 250px;
+  padding: 20px;
+}
+
+.createRoom input[type='text']{
+  border-radius: 20px;
+}
+
+.formSection {
+  margin-bottom: 16px;
+}
+
+.createRoom label {
+  color: white;
+  font-family: var(--primaryFont);
+}
+
+.rangeSlider {
+  position: relative;
+  margin-top: 32px;
+  display: flex;
+}
+
+ .rangeLimit {
+  margin: 0;
+   color: var(--primaryColor);
+}
+
+.rangeDialogNumber {
+  position: relative;
+  left: 0;
+  top: -25px;
+}
+
+.rangeNumber {
+  position: absolute;
+  padding-left: 6px;
+  text-align: center;
+  margin: 0;
+}
+
+.dialog-box {
+  position: absolute;
+}
+
+.createRoom input[type='range'] {
+  position: relative;
+  accent-color: var(--primaryColor);
+}
+
+.toggle {
+  width: 100px;
+  margin-top: 5px;
+  height: 40px;
+  border-radius: 40px;
+  position: relative;
+  background-color: green;
+  cursor: pointer;
+  overflow-x: hidden;
+  transition: background-color 0.5s ease;
+}
+
+.toggle.lock {
+  background-color: gray;
+}
+
+.togglePadlock {
+  transition: right 1s ease;
+}
+
+
+.toggleLock {
+  position: absolute;
+  right: 8px;
+}
+
+.toggleUnlock {
+  position: absolute;
+  right: calc(100% - 35% - 8px);
+}
+
+.toggleLock.hidePadlock {
+  right: -35%;
+}
+
+.toggleUnlock.hidePadlock {
+  right: calc((100% - 35% - 4px) + 38%);
+}
+
+.toggleSlider {
+  width: 35%;
+  height: 80%;
+  top: 5px;
+  border-radius: 50%;
+  position: absolute;
+  background-color: white;
+  right: 4px;
+  transition: right 1s ease;
+}
+
+.toggleSlider.toggleLeft {
+  right: calc(100% - 35% - 4px);
+}
+
+.toggleSlider.toggleLeft::after {
+  border-color: gray;
+}
+
+.toggleSlider::after {
+  content: "";
+  width: 50%;
+  height: 55%;
+  border-radius: 50%;
+  top: 7px;
+  left: 8px;
+  background-color: white;
+  position: absolute;
+  border: 3px solid green;
+}
+
+
+.createRoom button {
+  background: var(--primaryColor);
+  color: black;
+  border-radius: 10px;
+  height: 40px;
+  line-height: 0;
+  align-self: center;
+}
+
+
+
 .rooms {
   width: 350px;
   min-height: 320px;
   height: auto;
 }
-.createRoom {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  align-items: center;
-  margin-bottom: 15px;
-  border-bottom: 2px solid #332D2D;
-}
 
-
-.createRoom > .profileIcon {
-  margin-bottom: 5px;
-}
-
-.createRoom > form {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
-
-.createRoom > form > .lock {
-  margin-right: 10px;
-  cursor: pointer;
-}
-
-
-.createRoom > form > button {
-  background: #CC0001;
-  color: aliceblue;
-  height: 30px;
-  line-height: 0;
-}
-
-.createRoom > form > input {
-  height: 30px;
-  transform: skewX(-20deg);
-  width: 130px;
-}
 
 .profileIcon {
   background: white;

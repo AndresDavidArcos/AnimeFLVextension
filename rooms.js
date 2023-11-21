@@ -2,140 +2,57 @@
 import { showError } from "./errorModal.js";
 import ServerEndpoints from "./ServerEndpoints.js";
 
-export default function initRoomsWithUser(user){
+export default async function initRooms() {
     const d = document;
-    const generateUniqueId = () => {
-        return crypto.randomUUID();
-    }
-    const $roomTemplate = d.getElementById("template-room").content,
-    $roomsFragment = d.createDocumentFragment(),
-    $container = d.querySelector(".roomsContainer"),
-    $createRoomForm = d.getElementById("createRoomForm"),
-    $lock = d.querySelector(".lock"),
-    $createRoomError = d.querySelector(".createRoomError");
 
-    let url = "",
-    videoProvider = "",
-    rooms = {},
-    createPrivateRoom = true;
+    const $roomTemplate = d.getElementById("template-room").content,
+        $roomsFragment = d.createDocumentFragment(),
+        $container = d.querySelector(".roomsContainer");
+
+    let rooms = {};
+
+
     loadRooms();
 
-async function loadRooms(){
-    try {
-        const response = await fetch(ServerEndpoints.getRooms, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+    async function loadRooms() {
+        try {
+            const response = await fetch(ServerEndpoints.getRooms, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
 
-        if (response.ok) {
-            rooms = await response.json();
-            for(const roomId in rooms){
-                const room = rooms[roomId];
-                if(!room.lock){
-                    const $clone = d.importNode($roomTemplate, true);
-                    $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${room.avatar}.png`);
-                    $clone.querySelector(".usersConnectedNumber").textContent = room.usersConnected;
-                    $clone.querySelector(".username").textContent = room.username;
-                    $clone.querySelector(".roomName").textContent = room.roomName;
-                    $clone.querySelector(".roomEnterBtn").setAttribute("data-roomId", room.roomId);
-                    $roomsFragment.appendChild($clone);
+            if (response.ok) {
+                rooms = await response.json();
+                for (const roomId in rooms) {
+                    const room = rooms[roomId];
+                    if (!room.lock) {
+                        const $clone = d.importNode($roomTemplate, true);
+                        $clone.querySelector(".profileIcon").setAttribute("src", `./resources/profileIcons/${room.avatar}.png`);
+                        $clone.querySelector(".usersConnectedNumber").textContent = `${room.usersConnected}/${room.usersLimit}`;
+                        $clone.querySelector(".username").textContent = room.username;
+                        $clone.querySelector(".roomName").textContent = room.roomName;
+                        $clone.querySelector(".roomEnterBtn").setAttribute("data-roomId", room.roomId);
+                        $roomsFragment.appendChild($clone);
+                    }
+                    $container.appendChild($roomsFragment);
                 }
-                $container.appendChild($roomsFragment); 
-                }
-        } else {
-            throw new Error(response.msg);
+            } else {
+                throw new Error(response.msg);
+            }
+
+        } catch (error) {
+            console.log("Error al cargar las rooms", error);
+            showError("Error al cargar las rooms: ", error)
         }
-
-    } catch (error) {
-        console.log("Error al cargar las rooms", error);
-        showError("Error al cargar las rooms: ", error)
     }
 
-
-}
-
-
-    $createRoomForm.addEventListener("submit", async e => {
-        e.preventDefault();
-        try {
-            const [currentTab] = await chrome.tabs.query({active:true, currentWindow: true})
-            url = currentTab.url;
-            const urlCleaner = new URL(url);
-            url = urlCleaner.origin+urlCleaner.pathname
-            
-        } catch (error) {
-            console.log("No se encontro una url");
-        }
-
-        try {
-            const tabs = await chrome.tabs.query({active:true, currentWindow: true})
-            videoProvider = await chrome.tabs.sendMessage(tabs[0].id,{type:"videoRequest"});
-        } catch (error) {
-            console.log("No se encontro un video");
-        }
-
-        const regex = /^https:\/\/www3\.animeflv\.net\/ver\/.*$/;
-
-        if (regex.test(url)) {
-
-            if(videoProvider){
-                console.log("video encontrado!!!", videoProvider)
-                const $partyNameInput = $createRoomForm.elements['partyName'];
-                const partyName = $partyNameInput.value; 
-                const newRoomId = generateUniqueId()           
-                const partyData = {
-                    roomId: newRoomId,
-                    roomName: partyName,
-                    avatar: "male",
-                    username: user,
-                    lock: createPrivateRoom,
-                    url: url,
-                    videoProvider: videoProvider
-                }
-
-                try {
-                    const response = await fetch(ServerEndpoints.createRoom, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(partyData)
-                    });
-            
-                    if (response.ok) {
-                        const tabs = await chrome.tabs.query({active:true, currentWindow: true})
-                        chrome.tabs.sendMessage(tabs[0].id,{type:"roomCreated", partyData});      
-                    } else {
-                        showError("Hubo un error al crear la room: "+response.message);
-                    }
-                } catch (error) {
-                    console.error('Error creating room:', error);
-                }                   
-            }else{
-                showError("No se encontro un video para iniciar la party, por favor, reproduce un video con YourUpload o SW.")
-            }
-        }else{
-                showError("Para iniciar una party debes seleccionar un anime de la pagina AnimeFLV.")
-            }
-    })
-
-    $lock.addEventListener("click", e => {
-        if(createPrivateRoom){
-            createPrivateRoom = false;
-            $lock.setAttribute("src", "resources/tools/unlock.svg")
-        }else{
-            createPrivateRoom = true;
-            $lock.setAttribute("src", "resources/tools/lock.svg")
-        }
-    })
-
     d.addEventListener("click", e => {
-        if(e.target.matches(".roomEnterBtn")){
+        if (e.target.matches(".roomEnterBtn")) {
             const roomId = e.target.getAttribute("data-roomId");
             const thisRoom = rooms[roomId];
-            window.open(`${thisRoom.url}?roomId=${roomId}`,"_blank")
+            window.open(`${thisRoom.url}?roomId=${roomId}`, "_blank")
         }
     })
 

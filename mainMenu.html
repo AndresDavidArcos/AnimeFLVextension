@@ -4,64 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AnimeParty</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="mainMenu.css">
 </head>
 <body>
-    <div class="userLogin">
-        <p class="userLoginP">ESCRIBE TU NOMBRE PARA INGRESAR</p>
-        <form id="userLoginForm">
-            <input id="userLoginInput" placeholder="Nombre" type="text" maxlength="12" required>
-            <button class="btn" id="userLoginBtn" type="submit">ENTRAR</button>    
-        </form>
-        <p class="userLoginError error"></p>
+<div class="userLogin">
+    <p class="userLoginP">ESCRIBE TU NOMBRE PARA INGRESAR</p>
+    <form id="userLoginForm">
+        <input id="userLoginInput" placeholder="Nombre" type="text" maxlength="12" required>
+        <button class="btn" id="userLoginBtn" type="submit">ENTRAR</button>
+    </form>
+    <p class="userLoginError error"></p>
+</div>
+<div class="selectAction hide">
+    <h3>¿Que party haremos hoy?</h3>
+    <div class="selectActions">
+        <div class="action">
+            <div class="actionIcon actionJoin">
+                <img src="resources/tools/joinRoom.svg" alt="joinRoom">
+            </div>
+            <p> Unirse a una</p>
+        </div>
+        <div class="action">
+            <div class="actionIcon actionAdd">
+                <img src="resources/tools/addRoom.svg" alt="addRoom">
+            </div>
+            <p>Crear una</p>
+        </div>
     </div>
-    <div class="rooms hide">
-        <!-- Start error modal -->
-        <div class="frame hide">
-            <div class="modal">
-              <div class="warning">
+</div>
+<!-- Start error modal -->
+<div class="frame hide">
+    <div class="modal">
+        <div class="warning">
                 <span class="material-symbols-outlined">
                     sentiment_stressed
                     </span>
-              </div>
-              <div class="heading"></div>
-              <div class="content">
-                <span>Ups!</span>
-                <p class="contentErrorMsg"></p>
-              </div>
-              <div class="footer">
-                Dismiss
-              </div>
-            </div>
-          </div>
-          <!-- End error modal -->
-        <div class="createRoom">
-            <form id="createRoomForm">
-                <img   class="lock" src="resources/tools/lock.svg">
-                <input   name="partyName" type="text" placeholder="Nombre de tu party"  id="createRoomInput" maxlength="15" required>
-                <button type="submit" class="btn">CREAR</button>
-            </form>
-            <p class="createRoomError error"></p>
-            <img class="profileIcon" src="resources/profileIcons/male.png">   
         </div>
-        <div class="roomsContainer">
-            <template id="template-room">
-                <div class="room">
-                        <img class="profileIcon">   
-                        <p class="username"></p>
-                        <p class="roomName"></p>
-                        <div class="usersConnected">
-                            <img class="usersConnectedIcon" src="resources/tools/group.svg">
-                            <p class="usersConnectedNumber"></p>
-                        </div>
-                        <button class="btn roomEnterBtn">ENTRAR</button>    
-                    </div>
-            </template>
+        <div class="heading"></div>
+        <div class="content">
+            <span>Ups!</span>
+            <p class="contentErrorMsg"></p>
+        </div>
+        <div class="footer">
+            Dismiss
         </div>
     </div>
-    <script src="errorModal.js" type="module"></script>
-    <script src="login.js" type="module"></script>
-    <script src="rooms.js" type="module"></script>
+</div>
+<!-- End error modal -->
+<form id="createRoomForm" class="createRoom hide">
+    <label for="createRoomInput">Titulo</label>
+    <input class="formSection" name="partyName" type="text" placeholder="Nombre de tu party" id="createRoomInput"
+           maxlength="15" required>
+    <label for="usersLimit">Limite de usuarios</label>
+    <div class="rangeSlider formSection">
+        <p class="rangeLimit min">MIN</p>
+        <div class="rangeSliderInput">
+            <div class="rangeDialogNumber">
+                <svg class="dialog-box" width="26" height="24" viewBox="0 0 26 24" fill="none"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path id="bg" fill-rule="evenodd" clip-rule="evenodd"
+                          d="M4.33333 0C1.9401 0 0 1.98985 0 4.44444V15.5556C0 18.0102 1.9401 20 4.33333 20H8.95855L12.2965 23.3038C12.6862 23.6894 13.3138 23.6894 13.7035 23.3038L17.0415 20H21.6667C24.0599 20 26 18.0102 26 15.5556V4.44444C26 1.98985 24.0599 0 21.6667 0H4.33333Z"
+                          fill="#FFC107"/>
+                </svg>
+                <p class="rangeNumber"></p>
+            </div>
+            <input id="usersLimit" type="range" min="2" max="12" step="1" value="6"/>
+        </div>
+        <p class="rangeLimit max">MAX</p>
+    </div>
+    <label>Privacidad</label>
+    <div class="formSection roomPrivacy toggle">
+        <img class="togglePadlock toggleUnlock" src="resources/tools/unlock.svg" alt="unlockRoom">
+        <img class="togglePadlock toggleLock hidePadlock" src="resources/tools/lock.svg" alt="lockRoom">
+        <div class="toggleSlider">
+        </div>
+    </div>
+    <button type="submit" class="btn">CREAR!</button>
+</form>
+<div class="rooms hide">
+    <div class="roomsHeader">
+        <img class="profileIcon" src="resources/profileIcons/male.png">
+    </div>
+    <div class="roomsContainer">
+        <template id="template-room">
+            <div class="room">
+                <img class="profileIcon">
+                <p class="username"></p>
+                <p class="roomName"></p>
+                <div class="usersConnected">
+                    <img class="usersConnectedIcon" src="resources/tools/group.svg">
+                    <p class="usersConnectedNumber"></p>
+                </div>
+                <button class="btn roomEnterBtn">ENTRAR</button>
+            </div>
+        </template>
+    </div>
+</div>
+<script src="errorModal.js" type="module"></script>
+<script src="login.js" type="module"></script>
+<script src="selectAction.js" type="module"></script>
+<script src="rooms.js" type="module"></script>
+<script src="createRoom.js" type="module"></script>
 </body>
 </html>

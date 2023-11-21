@@ -98,9 +98,7 @@
                 let attempts = 0;
                 const maxAttempts = 6;
                 while (attempts < maxAttempts) {
-                    console.log("intento: ", attempts)
                     const socketRes = await socket.emitWithAck('askCurrentVideoState', roomInfo.roomId);
-                    console.log("respuesta: ", socketRes)
                     if (socketRes.type === 'error') {
                         buildMessageHtml({
                             ...genericError, date: Date.now(), content: `${socketRes.message} Volviendo a intentar.`
@@ -122,23 +120,18 @@
                     }
                 }
 
-                console.log("currentVideoState despues del while: ", currentVideoState);
-                console.log("se trato de enviar mensaje syncVideoProvider a: ", currentTab)
-                chrome.tabs.sendMessage(currentTab.id, {
+                await chrome.tabs.sendMessage(currentTab.id, {
                     type: "syncVideoProvider", provider: roomInfo.videoProvider
                 });
-                console.log("se trato de enviar mensaje syncVideoProvider con: ", roomInfo.videoProvider, currentTab)
+
                 const syncVideoState = setInterval(async () => {
                     try {
-                        console.log("intento1 con: ", currentTab, "currentVideoState: ", currentVideoState)
                         const res = await chrome.tabs.sendMessage(currentTab.id, {
                             type: "syncVideoState", currentVideoState
                         });
-                        console.log("res fue: ", res)
                         if (res === true) {
                             clearInterval(syncVideoState)
                         }
-
 
                     } catch (error) {
                         console.log("Error al intentar sincronizar el video desde chatScript: ", error)

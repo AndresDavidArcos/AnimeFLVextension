@@ -35,8 +35,8 @@ import(src).then(endpointsModule => {
             }
             $chatIframe.classList.add("animePartyChatView");
             $chatIframe.allow = "clipboard-read; clipboard-write"
-            $chatIframe.style.width = `${viewportWidth * 0.24}px`;
-            $chatIframe.style.height = `${viewportHeight * 0.8}px`;
+            $chatIframe.style.width = `360px`;
+            $chatIframe.style.height = `550px`;
             $chatIframe.style.position = 'absolute';
             $chatIframe.style.top = '100px';
             $chatIframe.style.right = '-50px';
@@ -172,6 +172,7 @@ import(src).then(endpointsModule => {
                         })
                         const $syncOption = $videoOptionsContainer.querySelector(`li:is([data-original-title="${provider}"], [title="${provider}"])`)
                         $syncOption.click();
+                        sendResponse(true);
                     } else {
                         console.log("No se encontraron opciones de video");
                     }
@@ -262,7 +263,6 @@ import(src).then(endpointsModule => {
                                 seekBySync = false;
                             }
                         }
-
 
                         chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                             console.log("mensajes capturados en el listener del iframe: ", msg)

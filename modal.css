@@ -24,15 +24,15 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999;
+    z-index: 2000;
   }
   
 .modalWindow p{
     margin: 0;
 }
 .modalWindow {
-    width: 280px;
-    height: 210px;
+    width: 260px;
+    height: 200px;
     border-radius: 4px;
     box-shadow: 2px 4px 10px 0px rgba(0, 0, 0, 0.4);
     background-color: #fff;

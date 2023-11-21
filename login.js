@@ -1,29 +1,30 @@
-import initRoomsWithUser from "./rooms.js";
+import initSelectAction from "./selectAction.js";
 
 const d = document;
-const $form = d.getElementById("userLoginForm");
-const $input = d.getElementById("userLoginInput");
-const $errorP = d.querySelector(".userLoginError");
-const $loginWindow = d.querySelector(".userLogin");
-const $roomsWindow = d.querySelector(".rooms");
+const $form = d.getElementById("userLoginForm"),
+ $input = d.getElementById("userLoginInput"),
+ $loginWindow = d.querySelector(".userLogin"),
+ $selectActionWindow = d.querySelector('.selectAction');
+
 initFlow();
 
-function showRooms(username){
+function showSelectActions(){
     $loginWindow.classList.add("hide");
-    $roomsWindow.classList.remove("hide");
-    initRoomsWithUser(username);
+    $selectActionWindow.classList.remove("hide");
+    initSelectAction();
 }
 
 async function initFlow(){
     const {username} = await chrome.storage.sync.get('username');
     if(username){
-        showRooms(username)
+        showSelectActions();
     }else{
         $form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const username = $input.value;
-        chrome.storage.sync.set({username})
-        showRooms(username);
+        await chrome.storage.sync.set({username})
+        showSelectActions();
+
     });
 }
 }
