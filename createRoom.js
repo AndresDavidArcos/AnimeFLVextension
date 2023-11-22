@@ -1,9 +1,10 @@
 import ServerEndpoints from "./ServerEndpoints.js";
 import {showError} from "./errorModal.js";
+import initHeader from "./header.js";
 
 export default async function initCreateRoom() {
     const d = document;
-    const {username} = await chrome.storage.sync.get('username');
+    const username = await initHeader('.createRoomSection');
 
     let url = "",
         videoProvider = "",
@@ -13,8 +14,7 @@ export default async function initCreateRoom() {
         return crypto.randomUUID();
     }
 
-    const $createRoomForm = d.getElementById('createRoomForm'),
-        $toggle = d.querySelector('.toggle');
+    const $createRoomForm = d.getElementById('createRoomForm');
 
     // Slider
     const $slider = d.getElementById('usersLimit'),
@@ -31,6 +31,7 @@ export default async function initCreateRoom() {
         $rangeDialogNumber.style.left = calcDialogMovement(maxLimit, minLimit, $slider.offsetWidth, userLimit) - 21 + 'px';
     })
 //Toggle
+    const $toggle = d.querySelector('.toggle');
     $toggle.addEventListener('click', e => {
         d.querySelector('.toggleSlider').classList.toggle('toggleLeft');
         d.querySelector('.toggleUnlock').classList.toggle('hidePadlock');

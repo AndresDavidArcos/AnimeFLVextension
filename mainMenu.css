@@ -137,6 +137,7 @@
     --primaryColor-intense1: #c55b01;
     --secondaryColor: #CC0001;
     --thirdColor: #ee4f6c;
+  --light-gray: #1E1E1E;
 }
 /* ********** Reset ********** */
 html {
@@ -156,7 +157,7 @@ html {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    background-color: black;
+    background-color: #191919;
     color: whitesmoke;
     font-family: var(--primaryFont);    
   }
@@ -253,13 +254,43 @@ html {
   width: 80%;
 }
 
+.header {
+  display: flex;
+  width: 100%;
+  height: 50px;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: var(--light-gray);
+}
+
+.headerProfileInfo {
+  display: flex;
+  flex-direction: row;
+  width: auto;
+}
+
+.headerLeft {
+  width: 18%;
+  cursor: pointer;
+}
+
+.headerUsername {
+  font-family: var(--secondaryFont);
+  margin-right: 5px;
+}
+
+.createRoomSection {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+}
+
 .createRoom {
+  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
   align-items: start;
-  width: 250px;
-  padding: 20px;
 }
 
 .createRoom input[type='text']{
@@ -388,11 +419,38 @@ html {
   align-self: center;
 }
 
+.roomsEmptyStateContainer {
+  width: 100%;
+  height: 100%;
+  padding: 25px 40px;
+}
 
+.roomsEmptyState {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  font-family: var(--secondaryFont);
+}
+
+.roomsEmptyStateTitle{
+  color: var(--primaryColor);
+  font-weight: bold;
+}
+
+.roomsEmptyState p{
+  color: #e0e0e0;
+  font-size: 13px;
+  margin-top: -10px;
+}
 
 .rooms {
   width: 350px;
   min-height: 320px;
+  display: flex;
+  flex-direction: column;
   height: auto;
 }
 

@@ -13,7 +13,7 @@ export default function initSelectAction() {
     })
 
     $create.addEventListener('click', () => {
-        d.querySelector(".createRoom").classList.remove('hide');
+        d.querySelector(".createRoomSection").classList.remove('hide');
         $selectAction.classList.add('hide');
         initCreateRoom();
     })

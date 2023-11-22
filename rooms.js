@@ -1,13 +1,16 @@
 
 import { showError } from "./errorModal.js";
 import ServerEndpoints from "./ServerEndpoints.js";
+import initHeader from "./header.js";
 
 export default async function initRooms() {
     const d = document;
+    const username = await initHeader('.rooms');
 
     const $roomTemplate = d.getElementById("template-room").content,
         $roomsFragment = d.createDocumentFragment(),
-        $container = d.querySelector(".roomsContainer");
+        $container = d.querySelector(".roomsContainer"),
+        $emptyState = d.querySelector('.roomsEmptyStateContainer');
 
     let rooms = {};
 
@@ -26,6 +29,7 @@ export default async function initRooms() {
             if (response.ok) {
                 rooms = await response.json();
                 for (const roomId in rooms) {
+                    $emptyState.classList.contains('hide') || $emptyState.classList.add('hide')
                     const room = rooms[roomId];
                     if (!room.lock) {
                         const $clone = d.importNode($roomTemplate, true);
@@ -36,15 +40,15 @@ export default async function initRooms() {
                         $clone.querySelector(".roomEnterBtn").setAttribute("data-roomId", room.roomId);
                         $roomsFragment.appendChild($clone);
                     }
-                    $container.appendChild($roomsFragment);
                 }
+                $container.appendChild($roomsFragment);
+
             } else {
                 throw new Error(response.msg);
             }
 
         } catch (error) {
-            console.log("Error al cargar las rooms", error);
-            showError("Error al cargar las rooms: ", error)
+            showError("El servidor esta caido, para mas detalles, contactate con el desarrollador.")
         }
     }
 
